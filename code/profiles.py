@@ -237,7 +237,8 @@ def pot_NFW(c, x, y, z, M):
     Rvir = rvir(M, 0) # here we are working at z=0
     a = Rvir / c 
     M = M * units.Msun
-    phi = -G * M * np.log(1 + r/a) / r
+    f = np.log(1.0 + Rvir/a) - ( Rvir/a / (1.0 + Rvir/a) )
+    phi = -G * M * np.log(1 + r/a) / (r * f)
     return phi
 
 def dens_NFW(c, x, y, z, M):
@@ -247,11 +248,9 @@ def dens_NFW(c, x, y, z, M):
     r = np.sqrt(x**2 + y**2 + z**2)
     Rvir = rvir2(M, 0) # here we are working at z=0
     a = Rvir / c
-    #print a    
     M = M * units.Msun
-    f = np.log(1 + Rvir/a) - ( Rvir/a / (1 + Rvir/a) )
-    #print f
-    rho = M / ( (4 * np.pi * a**3 * f) * (r / a) * ( 1 + r/a)**2  )  
+    f = np.log(1.0 + Rvir/a) - ( Rvir/a / (1.0 + Rvir/a) )
+    rho = M / ( (4.0 * np.pi * a**3.0 * f) * (r / a) * ( 1.0 + (r/a) )**2.0  )  
     return rho
 
 def vc_NFW(c, x, y, z, M):
@@ -262,7 +261,8 @@ def vc_NFW(c, x, y, z, M):
     Rvir = rvir(M, 0) # here we are working at z=0
     M = M * units.Msun
     a = Rvir / c
-    up = G * M * (np.log(1 + r/a) - r/(r+a) )
+    f = np.log(1.0 + Rvir/a) - ( Rvir/a / (1.0 + Rvir/a) )
+    up = G * M * (np.log(1 + r/a) - r/(r+a) ) / f
     vc = np.sqrt(up / r)
     vc = vc.to(units.km / units.s)
     return vc
@@ -274,7 +274,8 @@ def mass_NFW(c, x, y, z, M):
     Rvir = rvir(M, 0) # here we are working at z=0
     a = Rvir / c
     M = M * units.Msun
-    mass = M * (np.log(1 + r/a) - r/(a+r) ) 
+    f = np.log(1.0 + Rvir/a) - ( Rvir/a / (1.0 + Rvir/a) )
+    mass = M * (np.log(1 + r/a) - r/(a+r) ) / f 
     return mass
 
 def a_NFW(c, x, y, z, M):
@@ -286,9 +287,10 @@ def a_NFW(c, x, y, z, M):
     M = M * units.Msun
     a = Rvir / c
     r = np.sqrt(x**2 + y**2 + z**2)
-    ax = G * M / r**2 * ( r/(r+a) - np.log(1 + r/a) ) * x / r
-    ay = G * M / r**2 * ( r/(r+a) - np.log(1 + r/a) ) * y / r
-    az = G * M / r**2 * ( r/(r+a) - np.log(1 + r/a) ) * z / r
+    f = np.log(1.0 + Rvir/a) - ( Rvir/a / (1.0 + Rvir/a) )
+    ax = G * M / r**2 * ( r/(r+a) - np.log(1 + r/a) ) * x / r / f
+    ay = G * M / r**2 * ( r/(r+a) - np.log(1 + r/a) ) * y / r / f 
+    az = G * M / r**2 * ( r/(r+a) - np.log(1 + r/a) ) * z / r / f
     return ax, ay, az
 
 #+++++++++++++++++++++++++++++++++++++++++++ Logarithmic Profile +++++++++++++++++++++++
