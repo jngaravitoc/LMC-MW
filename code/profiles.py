@@ -180,9 +180,10 @@ def dens_mn(a, b, x, y, z, M):
     z = z * units.kpc
     a = a * units.kpc
     b = b * units.kpc
+    M = M * units.Msun
     R = np.sqrt(x**2 + y**2)
     rho = (b**2 * M / (4*np.pi)) * (a*R**2 + ( a + 3*(np.sqrt(z**2 + b**2)))*( a + np.sqrt(z**2 + b**2))**2 ) /( ( (R**2 + (a + np.sqrt(z**2 + b**2))**2)**(5./2.) * (z**2 + b**2)**(3./2.)) )
-    return rho.value
+    return rho
 
 
 def vc_mn(a, b, x, y, z,  M):
@@ -252,6 +253,19 @@ def dens_NFW(c, x, y, z, M):
     f = np.log(1.0 + Rvir/a) - ( Rvir/a / (1.0 + Rvir/a) )
     rho = M / ( (4.0 * np.pi * a**3.0 * f) * (r / a) * ( 1.0 + (r/a) )**2.0  )  
     return rho
+
+def dens_NFWnRvir(c, x, y, z, M, Rv):
+    x = x*units.kpc
+    y = y*units.kpc
+    z = z*units.kpc
+    r = np.sqrt(x**2 + y**2 + z**2)
+    Rvir = Rv # here we are working at z=0
+    a = Rvir / c
+    M = M * units.Msun
+    f = np.log(1.0 + Rvir/a) - ( Rvir/a / (1.0 + Rvir/a) )
+    rho = M / ( (4.0 * np.pi * a**3.0 * f) * (r / a) * ( 1.0 + (r/a) )**2.0  )
+    return rho
+
 
 def vc_NFW(c, x, y, z, M):
     x = x*units.kpc
