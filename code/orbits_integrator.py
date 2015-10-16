@@ -4,17 +4,22 @@ from cosmotools import *
 from math import erf
 import sys
 
-x_ic  =  float(sys.argv[1])
-y_ic  =  float(sys.argv[2])
-z_ic  =  float(sys.argv[3])
-vx_ic  =  float(sys.argv[4])
-vy_ic  =  float(sys.argv[5])
-vz_ic  =  float(sys.argv[6])
-Mhalo = float(sys.argv[7])
-Mdisk = float(sys.argv[8])
-Mbulge = float(sys.argv[9])
-Msat = float(sys.argv[10])
-Rvir = 261
+x_ic  =  -1
+y_ic  =  -41
+z_ic  =  -28
+vx_ic  =  -57
+vy_ic  =  -226
+vz_ic  =  221
+Mbulge = 1E10
+Mhalo = float(sys.argv[1])
+Mdisk = float(sys.argv[2])
+Msat = float(sys.argv[3])
+Rvir = float(sys.argv[4])  
+rs = float(sys.argv[5]) * units.kpc
+
+
+ra = 3.5 
+rb = 0.53
 
 print '#Initial conditions:'
 print '#x = ', x_ic, '(kpc),',  'y = ', y_ic, '(kpc),',  'z = ', z_ic, '(kpc),',  'vx = ', vx_ic, '(km/s),' , 'vy = ', vy_ic,  '(km/s),', 'vz = ', vz_ic, '(km/s),'
@@ -27,13 +32,13 @@ def coulomb_log(r):
     L = bmax / bmin
     return np.log(L)
 
-def sigma(c, r, M_halo, Rv):
+def sigma(rs, r, M_halo, Rv):
     M_halo = M_halo * units.Msun
-    Rvir = Rv * units.kpc #rvir2(M_halo.value, 0)  # Halo mass, Z
+    Rvir = Rv * units.kpc 
     vvir = np.sqrt( G * M_halo / Rvir) 
+    c = Rvir.value / rs.value
     g = np.log(1+c) - (c /(1+c))
     vmax = np.sqrt(0.216 * vvir**2 * c / g)
-    rs = Rvir / c
     x = r / rs
     sigma = vmax * 1.4393 * x **(0.354) / (1 + 1.1756*x**0.725)
     sigma = sigma.to(units.kpc / units.Gyr)
@@ -51,8 +56,9 @@ def dynamical_friction_sis(x, y, z, vx, vy, vz, M_halo, M_disk, M_bulge, M_sat, 
     vz = vz * units.kpc / units.Gyr
     v = np.sqrt(vx**2 + vy**2 + vz**2)
     # Density of the NFW at a given r
-    Mhalo = (M_halo - M_disk - M_bulge)
-    rho = dens_NFWnRvir(11, x.value, y.value, z.value, M_halo, Rvir) + dens_mn(3.5, 0.53, x.value, y.value, z.value, M_disk) + dens_hernquist(0.7, r.value, M_bulge) # a, r, v  ****
+    Mhalo = M_halo - M_disk - M_bulge
+    c = Rvir / rs.value
+    rho = dens_NFWnRvir(c, x.value, y.value, z.value, M_halo, Rvir) + dens_mn(ra, rb, x.value, y.value, z.value, M_disk) + dens_hernquist(0.7, r.value, M_bulge) # a, r, v  ****
     # Mass of the satellite
     M_sat = M_sat * units.Msun
     # Computing the dyanmical friction
@@ -60,7 +66,7 @@ def dynamical_friction_sis(x, y, z, vx, vy, vz, M_halo, M_disk, M_bulge, M_sat, 
     G = G.to(units.kpc**3 / units.Msun / units.Gyr**2)
     factor = - 4 * np.pi * G**2
     Coulomb =  coulomb_log(r) #**************
-    s = sigma(11, r, M_halo, Rvir) 
+    s = sigma(rs, r, M_halo, Rvir) 
     X = v / ( np.sqrt(2) * s ) 
     #print v, s, X
     # Main equation
@@ -74,8 +80,9 @@ def dynamical_friction_sis(x, y, z, vx, vy, vz, M_halo, M_disk, M_bulge, M_sat, 
     return a_dfx.value, a_dfy.value, a_dfz.value
 
 def acceleration(x, y, z, vx, vy, vz, M_halo, M_disk, M_bulge, M_sat, Rvir):
-    ahalo = a_NFWnRvir(11.0, x, y, z, M_halo, Rvir)
-    adisk = a_mn(3.5, 0.53, x, y, z, M_disk)
+    c = Rvir / rs.value
+    ahalo = a_NFWnRvir(c, x, y, z, M_halo, Rvir)
+    adisk = a_mn(ra, rb, x, y, z, M_disk)
     abulge = a_hernquist(0.7, x, y, z, M_bulge)
     ax = ahalo[0] + adisk[0] + abulge[0]
     ay = ahalo[1] + adisk[1] + abulge[1]
