@@ -22,14 +22,14 @@ print '#x = ', x_ic, '(kpc),',  'y = ', y_ic, '(kpc),',  'z = ', z_ic, '(kpc),',
 
 def coulomb_log(r):
     bmax = r # position of test particle at a time t
-    k = 1.42 * units.kpc # kpc
+    k = 3 * units.kpc # kpc
     bmin = 1.4 * k # k is the softening length if the LMC were modeled using a plummer progile . See Besla07
     L = bmax / bmin
     return np.log(L)
 
-def sigma(c, r, M_halo):
+def sigma(c, r, M_halo, Rv):
     M_halo = M_halo * units.Msun
-    Rvir = rvir2(M_halo.value, 0)  # Halo mass, Z
+    Rvir = Rv * units.kpc #rvir2(M_halo.value, 0)  # Halo mass, Z
     vvir = np.sqrt( G * M_halo / Rvir) 
     g = np.log(1+c) - (c /(1+c))
     vmax = np.sqrt(0.216 * vvir**2 * c / g)
@@ -59,7 +59,7 @@ def dynamical_friction_sis(x, y, z, vx, vy, vz, M_halo, M_disk, M_bulge, M_sat, 
     G = G.to(units.kpc**3 / units.Msun / units.Gyr**2)
     factor = - 4 * np.pi * G**2
     Coulomb =  coulomb_log(r) #**************
-    s = sigma(11, r, M_halo) 
+    s = sigma(11, r, M_halo, Rvir) 
     X = v / ( np.sqrt(2) * s ) 
     #print v, s, X
     # Main equation
@@ -89,10 +89,18 @@ def acceleration(x, y, z, vx, vy, vz, M_halo, M_disk, M_bulge, M_sat, Rvir):
     	Ay = ay.value + a_dfy 
     	Az = az.value + a_dfz
     else:
-    	Ax = ax.value
-        Ay = ay.value
-        Az = az.value 
-    return Ax, Ay, Az
+        G = constants.G
+        Mtot = (M_halo + M_disk + M_bulge ) * units.Msun
+    	Ax = - G * Mtot * x * units.kpc / (r*units.kpc)**3 
+        Ay = - G * Mtot * y * units.kpc / (r*units.kpc)**3 
+        Az = - G * Mtot * z * units.kpc / (r*units.kpc)**3
+        Ax = Ax.to(units.kpc / units.Gyr**2)
+        Ay = Ay.to(units.kpc / units.Gyr**2)
+        Az = Az.to(units.kpc / units.Gyr**2)
+        Ax = Ax.value
+        Ay = Ay.value
+        Az = Az.value
+    return Ax, Ay, Az  
 
 def leapfrog(x_ic, y_ic, z_ic, vx_ic, vy_ic, vz_ic, M_halo, M_disk, M_bulge, M_sat, Rvir):
 

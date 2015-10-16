@@ -307,6 +307,23 @@ def a_NFW(c, x, y, z, M):
     az = G * M / r**2 * ( r/(r+a) - np.log(1 + r/a) ) * z / r / f
     return ax, ay, az
 
+
+def a_NFWnRvir(c, x, y, z, M, Rv):
+    x = x*units.kpc
+    y = y*units.kpc
+    z = z*units.kpc
+    #M = M * units.Msun
+    Rvir = Rv * units.kpc #rvir(M, 0) # here we are working at z=0
+    M = M * units.Msun
+    a = Rvir / c
+    r = np.sqrt(x**2 + y**2 + z**2)
+    f = np.log(1.0 + Rvir/a) - ( Rvir/a / (1.0 + Rvir/a) )
+    ax = G * M / r**2 * ( r/(r+a) - np.log(1 + r/a) ) * x / r / f
+    ay = G * M / r**2 * ( r/(r+a) - np.log(1 + r/a) ) * y / r / f
+    az = G * M / r**2 * ( r/(r+a) - np.log(1 + r/a) ) * z / r / f
+    return ax, ay, az
+
+
 #+++++++++++++++++++++++++++++++++++++++++++ Logarithmic Profile +++++++++++++++++++++++
 
 def pot_log( Rc, q, z, R, v):
