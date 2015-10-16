@@ -51,6 +51,7 @@ def dynamical_friction_sis(x, y, z, vx, vy, vz, M_halo, M_disk, M_bulge, M_sat, 
     vz = vz * units.kpc / units.Gyr
     v = np.sqrt(vx**2 + vy**2 + vz**2)
     # Density of the NFW at a given r
+    Mhalo = (M_halo - M_disk - M_bulge)
     rho = dens_NFWnRvir(11, x.value, y.value, z.value, M_halo, Rvir) + dens_mn(3.5, 0.53, x.value, y.value, z.value, M_disk) + dens_hernquist(0.7, r.value, M_bulge) # a, r, v  ****
     # Mass of the satellite
     M_sat = M_sat * units.Msun
@@ -83,14 +84,14 @@ def acceleration(x, y, z, vx, vy, vz, M_halo, M_disk, M_bulge, M_sat, Rvir):
     ay = ay.to(units.kpc/units.Gyr**2) 
     az = az.to(units.kpc/units.Gyr**2)
     r = np.sqrt(x**2 + y**2 + z**2)
-    if (r<Rvir):
+    if (r<=Rvir):
     	a_dfx, a_dfy, a_dfz = dynamical_friction_sis(x, y, z, vx, vy, vz, M_halo, M_disk, M_bulge, M_sat, Rvir)
     	Ax = ax.value + a_dfx 
     	Ay = ay.value + a_dfy 
     	Az = az.value + a_dfz
     else:
         G = constants.G
-        Mtot = (M_halo + M_disk + M_bulge ) * units.Msun
+        Mtot = (M_halo) * units.Msun
     	Ax = - G * Mtot * x * units.kpc / (r*units.kpc)**3 
         Ay = - G * Mtot * y * units.kpc / (r*units.kpc)**3 
         Az = - G * Mtot * z * units.kpc / (r*units.kpc)**3
