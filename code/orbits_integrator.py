@@ -3,24 +3,34 @@ from profiles import *
 from cosmotools import *
 from math import erf
 import sys
+import scipy as sc
 
-x_ic  =  -1
-y_ic  =  -41
-z_ic  =  -28
-vx_ic  =  -57
-vy_ic  =  -226
-vz_ic  =  221
-#x_ic = 10
-#y_ic = 0
-#z_ic = 0
-#vx_ic = -10
-#vy_ic = 0
-#vz_ic = 0
+input_name = sys.argv[1]
+
+x = sc.genfromtxt(sys.argv[1], dtype='S')
+inp = {}
+for i in range(len(x[:,0])):
+        (key, val) = (x[i,0], x[i,1])
+        inp[(key)] = val
+
+print inp['filename']
+
+
+
+x_ic  =  float(inp['x'])
+y_ic  =  float(inp['y'])
+z_ic  =  float(inp['z'])
+vx_ic  =  float(inp['vx'])
+vy_ic  = float(inp['vy'])
+vz_ic  = float(inp['vz'])
+
 Mbulge = 1E10
 Mhalo = float(sys.argv[1])
 Mdisk = float(sys.argv[2])
 Msat = float(sys.argv[3])
+
 Rvir = float(sys.argv[4])  
+
 rs = float(sys.argv[5]) * units.kpc
 rlmc = float(sys.argv[6]) * units.kpc
 mw = sys.argv[7]
