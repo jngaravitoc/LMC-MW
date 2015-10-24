@@ -1,0 +1,37 @@
+#Input file
+# filename of output
+filename Sag
+#initial positions
+x 80 
+y 0 
+z 0 
+#initialvelocities
+vx 0
+vy 0
+vz 80
+#Mass 
+Mbulge 1E10
+Mdisk 6.5E10
+Mvir  1E12
+Msat 1E11
+#Scale radii
+c_bulge 0.7
+Disc_ra 3.5
+Disc_rb 0.53
+Halo_rs 26.47
+# Halo Virial radius kpc
+rvir 261
+# Dynamical Friciton 
+Dynamicalfriction 0 
+# Time of integration in Gyrs
+Time 2
+dt 0.001
+# Backwards or Forward
+Backwards 1
+# MW free or fix
+MW free 
+
+
+
+
+
