@@ -1,0 +1,9 @@
+#this are the models from Gomez et al 2015. integrated until the virial radius!
+#model MWmass LMCmass
+model1  1E12   3E10 
+model2  1E12   5E10
+model3  1E12   8E10
+model4  1E12   1E11
+model5  1E12   1.8E11
+model6  1E12   2.5E11
+
