@@ -20,6 +20,8 @@ def mhmvir(ar, cvir):
     return x
 
 
+
+
 a_rs = ars(cvir)
 
 mh_mvir = mhmvir(a_rs, cvir)
@@ -32,6 +34,12 @@ v = (mh * 10 * G * H)**(1.0/3.0)
 v = v.to(units.km/units.s)
 v_h = (Mvir*units.Msun *10*G*H)**(1.0/3.0)
 v_h = v_h.to(units.km / units.s)
+
+Rvir = v/(H*10)
+A = Rvir / cvir
+A = A.to(units.kpc)
+
+
 print 'Hernquist velocity:'
 print v_h
 
@@ -40,3 +48,4 @@ print '-------------In case you want the Hernquist equivalence of a NFW Mvir ---
 
 print 'This is the velocity you need = ', v
 print 'This is the mass of Hernquist equivalent to a NFW', mh
+print 'Hernquist scale length = ', A
