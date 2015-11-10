@@ -70,6 +70,18 @@ def vvir(M):
     v = v.to(units.km / units.s)
     return v
 
+def R200(v200):
+    H = 3.2407789E-18  / units.s * 0.7
+    r200 = v200 / (10.0 * H)
+    r200 = r200.to(units.kpc)
+    return r200
+
+def ars_v(c200, r200):
+    a = r200 / c200 * np.sqrt(2 * np.log(1 + c200) - c200/(1+c200))
+    return a
+
+
+
 
 print "This code assume that your initial parameters are Mvir(NFW), Rvir(NFW) and Rs(NFW)"
 print "Vvir (NFW)", vvir(Mvir)
@@ -83,7 +95,6 @@ a_rs_200 = ars(c200)
 a_rs_vir = ars(cvir)
 a200 = Rs * a_rs_vir
 avir = Rs * a_rs_200
-
 print "a200 = ", a200
 print "avir = ", avir
 
@@ -102,5 +113,10 @@ print "M_h_vir = ", mh_vir
 v_h_200 = v200(mh_200)
 v_h_vir = vvir(mh_vir)
 
+r200 = R200(v_h_200)
+a_rs_200_v = ars_v(c200, r200)
+
 print "v_h_200 = ", v_h_200
 print "v_h_vir = ", v_h_vir
+
+print 'a_200 Volker = ', a_rs_200_v 
