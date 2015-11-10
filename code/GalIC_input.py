@@ -55,7 +55,7 @@ def mhmvir(ar, cvir):
 def v200(M):
     M = M * units.Msun
     G = constants.G
-    H = 3.2407789E-18  / units.s * 0.7
+    H = 3.2407789E-18  / units.s * 0.7 
     v = (M * 10 * G * H)**(1.0/3.0)
     v = v.to(units.km/units.s)
     return v
@@ -66,7 +66,7 @@ def vvir(M):
     G = constants.G
     H = 3.2407789E-18  / units.s * 0.7
     #print G, H
-    v = (M*6.9713*G*H)**(1.0/3.0)
+    v = (M*6.9713700231733506*G*H)**(1.0/3.0)
     v = v.to(units.km / units.s)
     return v
 
