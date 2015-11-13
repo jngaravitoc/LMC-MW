@@ -3,7 +3,7 @@ from profiles import mass_hernquist as mh
 import sys
 
 M = float(sys.argv[1])
-M_ideal = 1.3E10
+M_ideal = float(sys.argv[2])
 
 def a_value(M):
     a_values = np.linspace(3, 30, 1000)
