@@ -4,18 +4,16 @@ from cosmotools import *
 from math import erf
 import sys
 
+# From Facundo's orbits:
+
 x_ic  =  80
 y_ic  =  0
 z_ic  =  0
 vx_ic  =  0
 vy_ic  =  0
 vz_ic  =  80
-#x_ic = 10
-#y_ic = 0
-#z_ic = 0
-#vx_ic = -10
-#vy_ic = 0
-#vz_ic = 0
+
+
 Mbulge = 1E10
 Mhalo = float(sys.argv[1])
 Mdisk = float(sys.argv[2])
@@ -24,7 +22,9 @@ Rvir = float(sys.argv[4])
 rs = float(sys.argv[5]) * units.kpc
 rlmc = float(sys.argv[6]) # units.kpc
 mw = sys.argv[7]
+alpha = float(sys.argv[8])
 
+conv = 0.977792221673 # from kpc/gys to km/s
 ra = 3.5 
 rb = 0.53
 
@@ -37,7 +37,8 @@ def coulomb_log(r):
     k = 3 * units.kpc # kpc
     bmin = 1.4 * k # k is the softening length if the LMC were modeled using a plummer progile . See Besla07
     L = bmax / bmin
-    return np.log(L)
+    CL = alpha * np.log(L)
+    return CL
 
 def sigma(rs, r, M_halo, Rv):
     M_halo = M_halo * units.Msun
@@ -63,7 +64,7 @@ def dynamical_friction_sis(x, y, z, vx, vy, vz, M_halo, M_disk, M_bulge, M_sat, 
     vz = vz * units.kpc / units.Gyr
     v = np.sqrt(vx**2 + vy**2 + vz**2)
     # Density of the NFW at a given r
-    Mhalo = M_halo - M_disk - M_bulge
+    Mhalo = M_halo# - M_disk - M_bulge
     c = Rvir / rs.value
     rho = dens_NFWnRvir(c, x.value, y.value, z.value, Mhalo, Rvir) #+ dens_mn(ra, rb, x.value, y.value, z.value, M_disk) + dens_hernquist(0.7, r.value, M_bulge) # a, r, v  ****
     # Mass of the satellite
@@ -146,7 +147,7 @@ def acceleration_mw(x, y, z, M_sat):
 
 def leapfrog(x_ic, y_ic, z_ic, vx_ic, vy_ic, vz_ic, M_halo, M_disk, M_bulge, M_sat, Rvir):
 
-        n_points = 2000
+        n_points = 2500
         h = 0.001
 
         # Creating the arrays to collect the data in each step of the integration
@@ -182,8 +183,15 @@ def leapfrog(x_ic, y_ic, z_ic, vx_ic, vy_ic, vz_ic, M_halo, M_disk, M_bulge, M_s
         vy_mw  = np.zeros(n_points)
         vz_mw  = np.zeros(n_points)
 
+	vx_ic_MW = 0 * units.km / units.s
+        vy_ic_MW = 0 * units.km / units.s
+        vz_ic_MW = 0 * units.km / units.s
+     
+        vx_ic_MW = vx_ic_MW.to(units.kpc / units.Gyr)
+        vy_ic_MW = vy_ic_MW.to(units.kpc / units.Gyr) 
+        vz_ic_MW = vz_ic_MW.to(units.kpc / units.Gyr)
 
-        ax = np.zeros(n_points)
+	ax = np.zeros(n_points)
         ay = np.zeros(n_points)
         az = np.zeros(n_points)
 
@@ -198,17 +206,17 @@ def leapfrog(x_ic, y_ic, z_ic, vx_ic, vy_ic, vz_ic, M_halo, M_disk, M_bulge, M_s
         y[0] = y_ic
         z[0] = z_ic
         
-        x_mw[0] = 0.0
-        y_mw[0] = 0.0
-        z_mw[0] = 0.0
+        x_mw[0] = 0
+        y_mw[0] = 0
+        z_mw[0] = 0
 
         vx[0] = vx_ic
         vy[0] = vy_ic
         vz[0] = vz_ic
 
-        vx_mw[0] = 0.0
-        vy_mw[0] = 0.0
-        vz_mw[0] = 0.0 
+        vx_mw[0] = vx_ic_MW.value
+        vy_mw[0] = vy_ic_MW.value
+        vz_mw[0] = vz_ic_MW.value
 
         ax[0] = acceleration((x[0]-x_mw[0]), (y[0]-y_mw[0]), (z[0]-z_mw[0]), (vx[0]-vx_mw[0]), (vy[0]-vy_mw[0]), (vz[0]-vz_mw[0]), M_halo, M_disk, M_bulge, M_sat, Rvir)[0]
         ay[0] = acceleration((x[0]-x_mw[0]), (y[0]-y_mw[0]), (z[0]-z_mw[0]), (vx[0]-vx_mw[0]), (vy[0]-vy_mw[0]), (vz[0]-vz_mw[0]), M_halo, M_disk, M_bulge, M_sat, Rvir)[1]
@@ -304,13 +312,9 @@ t, xx , yy, zz, xx_mw, yy_mw, zz_mw, vx, vy, vz, vx_mw, vy_mw, vz_mw, ax, ay, az
 R = np.sqrt((xx)**2 + (yy)**2 + (zz)**2)
 RMW = np.sqrt(xx_mw**2 + yy_mw**2 + zz_mw**2)
 
-print "# t, x, y, z, xmw, ymw, zmw, vxmw, vymw, vzmw, ax, ay, az, axmw, aymw, azmw"
+print "# positions and velocities are relative to a (0,0,0) point"
+print "# t (Gyr), x_sat(kpc), y_sat(kpc), z_sat(kpc), xmw(kpc), ymw(kpc), zmw(kpc), vx_sat(km/s), vy_sat(km/s), vz_sat(km/s) ,  vxmw(km/s), vymw(km/s), vzmw(km/s)"
+
 for i in range(len(xx)):
-	print t[i], xx[i], yy[i], zz[i], xx_mw[i], yy_mw[i], zz_mw[i], vx[i], vy[i], vz[i],  vx_mw[i], vy_mw[i], vz_mw[i], ax[i], ay[i], az[i], ax_mw[i], ay_mw[i], az_mw[i] 
-
-
-#print "# t, x, y, z, R"
-#for i in range(len(xx)):
-#	print t[i], xx_mw[i], yy_mw[i], zz_mw[i], RMW[i] 
-
-
+	print t[i], xx[i], yy[i], zz[i], xx_mw[i], yy_mw[i], zz_mw[i], vx[i] * conv, \
+	vy[i] * conv , vz[i] * conv ,  vx_mw[i] * conv, vy_mw[i] * conv, vz_mw[i] * conv
