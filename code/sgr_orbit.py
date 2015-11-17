@@ -15,14 +15,15 @@ vz_ic  =  80
 
 
 Mbulge = 1E10
-Mhalo = float(sys.argv[1])
-Mdisk = float(sys.argv[2])
-Msat = float(sys.argv[3])
-Rvir = float(sys.argv[4])  
-rs = float(sys.argv[5]) * units.kpc
-rlmc = float(sys.argv[6]) # units.kpc
-mw = sys.argv[7]
-alpha = float(sys.argv[8])
+Mhalo = 1E12
+Mdisk = 6.5E10
+Msat = float(sys.argv[1])
+Rvir = 261  
+rs = 26.47 * units.kpc
+c_sat = float(sys.argv[2]) # units.kpc
+Rvir_sat = float(sys.argv[3])
+mw = 'free'
+alpha = float(sys.argv[4])
 
 conv = 0.977792221673 # from kpc/gys to km/s
 ra = 3.5 
@@ -129,16 +130,9 @@ def acceleration_mw(x, y, z, M_sat):
     M_sat = M_sat * units.Msun
     r = np.sqrt(x**2 + y**2 + z**2)
     G = constants.G
-    #rlmc = rlmc * units.kpc
-    #if (r.value<=Rvir):
-    Ax =  a_hernquist(rlmc, x.value, y.value, z.value, M_sat.value)[0]        
-    Ay =  a_hernquist(rlmc, x.value, y.value, z.value, M_sat.value)[1]
-    Az =  a_hernquist(rlmc, x.value, y.value, z.value, M_sat.value)[2]
-    #else: 
-#	Ax = - G * M_sat * x / r**3
-#       Ay = - G * M_sat * y / r**3
-#       Az = - G * M_sat * z / r**3
-	
+    Ax =  a_NFWnRvir(c_sat, x.value, y.value, z.value, M_sat.value, Rvir_sat)[0]
+    Ay =  a_NFWnRvir(c_sat, x.value, y.value, z.value, M_sat.value, Rvir_sat)[1]
+    Az =  a_NFWnRvir(c_sat, x.value, y.value, z.value, M_sat.value, Rvir_sat)[2]
     Ax = Ax.to(units.kpc / units.Gyr**2)
     Ay = Ay.to(units.kpc / units.Gyr**2)
     Az = Az.to(units.kpc / units.Gyr**2)
