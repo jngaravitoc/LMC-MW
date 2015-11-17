@@ -66,7 +66,7 @@ def vvir(M):
     G = constants.G
     H = 3.2407789E-18  / units.s * 0.7
     #print G, H
-    v = (M*6.9713700231733506*G*H)**(1.0/3.0)
+    v = (M*np.sqrt(48.6)*G*H)**(1.0/3.0)
     v = v.to(units.km / units.s)
     return v
 
@@ -93,8 +93,8 @@ print "c200(NFW) = ", c200
 
 a_rs_200 = ars(c200)
 a_rs_vir = ars(cvir)
-a200 = Rs * a_rs_vir
-avir = Rs * a_rs_200
+a200 = Rs * a_rs_200
+avir = Rs * a_rs_vir
 print "a200 = ", a200
 print "avir = ", avir
 
