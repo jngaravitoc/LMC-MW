@@ -39,3 +39,8 @@ def rvir2(Mvir, z):
     rv = 206/h * (Dvir(z) * Omega0 / 97.2)**(-1.0/3.0) * (Mvir*h/(1E12))**(1.0/3.0)
     rv = rv * units.kpc
     return rv
+
+def concentration(Mvir):
+   h = 0.7
+   c = 9.60 * (Mvir * h/ 1E12)**(-0.075)
+   return c
