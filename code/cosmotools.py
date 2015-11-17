@@ -2,8 +2,10 @@ import numpy as np
 from astropy import units
 from astropy import constants
 
-H_0 = 70.4 * units.km / (units.s * units.Mpc)
-Omega0 = 0.2726
+#H_0 = 67.8 * units.km / (units.s * units.Mpc)
+H_0 = 3.2407789E-18  / units.s * 0.7
+H_0 = H_0.to(units.km / units.s / units.Mpc)
+Omega0 = 0.27
 G = constants.G
 G = G.to(units.kiloparsec**3 / (units.Msun * units.s**2))
 
@@ -29,6 +31,7 @@ def rvir(Mvir, z):
     Mvir = Mvir * units.Msun
     Deltavir = Dvir(z)
     pcrit = rho_crit(z)
+    print Deltavir, pcrit
     Rvir = ( 3*Mvir / (4 * np.pi * Deltavir * pcrit * Omega0) )**(1/3.)
     Rvir = Rvir.to(units.kpc)
     return Rvir

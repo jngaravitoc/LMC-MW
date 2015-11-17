@@ -288,7 +288,8 @@ def mass_NFW(c, x, y, z, M):
     Rvir = rvir(M, 0) # here we are working at z=0
     a = Rvir / c
     M = M * units.Msun
-    f = np.log(1.0 + Rvir/a) - ( Rvir/a / (1.0 + Rvir/a) )
+    r = np.sqrt(x**2 + y**2 + z**2)
+    f = np.log(1.0 + c) - ( c / (1.0 + c) )
     mass = M * (np.log(1 + r/a) - r/(a+r) ) / f 
     return mass
 
