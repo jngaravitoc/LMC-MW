@@ -31,7 +31,6 @@ def rvir(Mvir, z):
     Mvir = Mvir * units.Msun
     Deltavir = Dvir(z)
     pcrit = rho_crit(z)
-    print Deltavir, pcrit
     Rvir = ( 3*Mvir / (4 * np.pi * Deltavir * pcrit * Omega0) )**(1/3.)
     Rvir = Rvir.to(units.kpc)
     return Rvir
