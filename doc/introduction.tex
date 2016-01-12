@@ -42,7 +42,7 @@ for more than $360°$(majewsky03, piladiaz13, belokurov14) around the
 Milky Way, the velocity space is ($>20km/s$) (koposov13) which suggest that
 the Sgr stream is dynamically hot.
 
-\vspace{16cm}
+%\vspace{16cm}
 
 With these observations several groups have attempted to reproduce the
 stream with N-body models. Founding different halo shapes,
@@ -51,7 +51,8 @@ stream with N-body models. Founding different halo shapes,
 \begin{center}
 \begin{tabular}{c c c}
 \hline
-Halo Shape & Work & Parameters
+\hline
+Halo Shape & Author & Parameters \\
 \hline
 Spherical & Ibata et al 01 & \\
 Spherical & Law05 & \\
@@ -62,7 +63,10 @@ Oblate & MartinezDelgado07 & \\
 Triaxial & LMJ09 & \\
 Triaxial & LM & \\
 Oblate-Triaxial & Vera-Ciro13 & \\
+\hline
+\hline
 \end{tabular}
+\caption{Halo Shape models derived from streams.}
 \end{center}
 \end{table}
 
@@ -80,29 +84,39 @@ the potential that reproduce the morphology of Palomar 5 is spherical.
 Recent observations of Pal5 \citep{Fritz15} also suggest a spherical
 halo with $V_0 = 220 km/s$ and $V_{20kpc} = 218 km/s$. These results
 are in disagreement with the \citep{LawMajewsky} model that reproduce the Sagittarius stream
-and a such a halo would be .
+and a such a halo shape would be uncommon in the $\Lambda$CDM
+paradigm \verb+ponercita+.
 
 New techniques are being developed with the aim of constraining the halo with multiple
 streams at different distances at the same time (Bonaca14). These techniques 
-prevent the underestimate or overestimate of the halo mass.
+prevent the underestimation or overestimation of the halo mass.
+\textbf{why?}
 
 However all of the studies that constrain the dark matter halo using streams
 assume a static dark matter halo, (Buist \& Helmi15) claim that if the dark matter
 halo is changing in time misalignments on the orbit of long streams could appear.
+\textbf{explain}
 
-The Milky Way dark matter is not isolated in fact it is interacting with a 
+The Milky Way is not isolated, in fact it is interacting with a 
 massive satellite ~$1\times10^{11}M_{\odot}$, the Large Magellanic Cloud (LMC)
-which is in it's first passage about the MW and is currently at the pericenter
-at 50Kpc from the galactic center. Such a massive satellite inside the virial 
+which is in the first passage about the MW and is currently at the pericenter
+of the orbit at 50Kpc from the Galactic center. Such a massive satellite inside the virial 
 radius ($R_{vir}\sim 261kpc$) of the MW should be distorting the MW dark matter
-halo.
+halo. \textbf{Why? Compre MW rot cum, mass enclosed within 50kpc & Mass
+enclosed of LMC. Create a simple model Gomez2015, orbital barycenter
+changes. 1:4 merger}
 
-A detail study of the influence of the LMC in the MW dark matter halo
-shape is needed in order to prevent biases in the streams models. 
-The aim of this work is study these influence for this aim 
-we model the MW as an spherical halo that is distorted by the LMC. We integrate 
-analytically the orbit of the LMC until the MW halo virial radius of $261Kpc$, 
-from these initial conditions we used N-body simulations to study the distortion 
-of the LMC in a first passage scenario.   
-  
 
+Due to the LMC the dark matter halo of the Milky Way might be
+distorted and evolving in time. Consequently a detailed study of the
+influence of the LMC on the MW dark matter halo shape is needed. Two
+main questions are addressed in this work; What are the evolving shape of the inner
+(<20kpc) and outer halo (>20kpc). Study the torques applied to streams in the inner halo.
+
+We use N-body simulations which reproduce the orbital history of the
+LMC. We model the MW as an spherical halo that is distorted by the LMC.
+In \S\ref{sec:models} we described the models used for the LMC and
+the MW. In \S\ref{sec:IC} we explained how we derived our initial
+conditions. In \S\ref{sec:shapes} we explained the methods to study
+the shape of the halos. In \S\ref{sec:results} we present our
+results.
