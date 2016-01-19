@@ -1,14 +1,16 @@
-import numpy as np 
+import numpy as np
 from pygadgetreader import *
 import sys
 import argparse
 
-parser = argparse.ArgumentParser(
-    description='Computing the CM position and velocity',
-    epilog='python orbit_cm.py snap_base_name initial_snap_number' \
-    'final_snap_number')
+#parser = argparse.ArgumentParser(
+#    description='Computing the CM position and velocity',
+#    epilog='python orbit_cm.py snap_base_name initial_snap_number' \
+#    'final_snap_number')
 
-output = parser.parse_args()
+#output = parser.parse_args()
+
+print len(sys.argv)
 
 if len(sys.argv) != 4:
     print 'Usage: python orbit_cm.py snap_base_name inital_snap_number final_snap_number'
@@ -21,30 +23,31 @@ snap = str(sys.argv[1])
 # Initial and final snapshot number
 i_n = float(sys.argv[2])
 i_f = float(sys.argv[3])
-path = '/home/xozidok/work/github/LMC-MW/data/LMCMW/MW1LMC4/snapshots/'
+path = '../../data/LMCMW/MW1LMC4/snapshots/'
 
 # Number of Snapshots
 N_snaps = (i_f - i_n) + 1
-
+delta = 50 # precision of the CM computation in Kpc.
 #Position and velocity arrays for the host and the satellite
 X = np.zeros(N_snaps)
 Y = np.zeros(N_snaps)
 Z = np.zeros(N_snaps)
 
-vX = np.zeros(N_snaps)
-vY = np.zeros(N_snaps)
-vZ = np.zeros(N_snaps)
+VX = np.zeros(N_snaps)
+VY = np.zeros(N_snaps)
+VZ = np.zeros(N_snaps)
 
 Xsat = np.zeros(N_snaps)
 Ysat = np.zeros(N_snaps)
 Zsat = np.zeros(N_snaps)
 
-vXsat = np.zeros(N_snaps)
-vYsat = np.zeros(N_snaps)
-vZsat = np.zeros(N_snaps)
+VXsat = np.zeros(N_snaps)
+VYsat = np.zeros(N_snaps)
+VZsat = np.zeros(N_snaps)
 
 #Galactocentric distance and time arrays
 Rgal = np.zeros(N_snaps)
+Vgal = np.zeros(N_snaps)
 time = np.zeros(N_snaps)
 
 # Defining function that computes the CM of the halo: 
@@ -98,23 +101,39 @@ for i in range(0,len(X)):
         particles_ids = readsnap(path + snap + "_0" + str(i), 'pid', 'dm')
 
     X = np.sort(particles_ids)
-    index_mw = np.where(particles_ids<=49376)
-    index_LMC = np.where(particles_ids>49376)
+    # The first half of particles are from the host DM halo, the 
+    # second half are from the satellite DM halo.
+    idcut = int(len(X)/2.0 - 1.0)
+    index_mw = np.where(particles_ids<=X[idcut])
+    index_LMC = np.where(particles_ids>X[idcut])
 
-    x_mw = positions[index_mw[0],2]
-    y_mw = positions[index_mw[0],0]
-    z_mw = positions[index_mw[0],1]
+    x_mw = positions[index_mw[0],0]
+    y_mw = positions[index_mw[0],1]
+    z_mw = positions[index_mw[0],2]
     x_lmc = positions[index_LMC[0],0]
     y_lmc = positions[index_LMC[0],1]
     z_lmc = positions[index_LMC[0],2]
 
-    X[i], Y[i], Z[i] = CM(x_mw, y_mw, z_mw, 100)
-    Xsat[i], Ysat[i], Zsat[i]  = CM(x_lmc, y_lmc, z_lmc, 100)
+    vx_mw = velocities[index_mw[0],0]
+    vy_mw = velocities[index_mw[0],1]
+    vz_mw = velocities[index_mw[0],2]
+    vx_lmc = velocities[index_LMC[0],0]
+    vy_lmc = velocities[index_LMC[0],1]
+    vz_lmc = velocities[index_LMC[0],2]
+
+    X[i], Y[i], Z[i] = CM(x_mw, y_mw, z_mw, delta)
+    Xsat[i], Ysat[i], Zsat[i]  = CM(x_lmc, y_lmc, z_lmc, delta)
     Rgal[i] = np.sqrt((X[i] - Xsat[i])**2 + (Y[i]-Ysat[i])**2 + (Z[i] - Zsat[i])**2)
 
+    VX[i], VY[i], VZ[i] = CM(vx_mw, vy_mw, vz_mw, delta)
+    VXsat[i], VYsat[i], VZsat[i]  = CM(vx_lmc, vy_lmc, vz_lmc, delta)
+    Vgal[i] = np.sqrt((VX[i] - VXsat[i])**2 + (VY[i]-VYsat[i])**2 + (VZ[i] - VZsat[i])**2)
+
+
 f = open("rgal_snaps_l0.txt", 'w')
-f.write("Time(Gyrs) | Rgal(kpc) | Xsat[kpc] | Ysat[kpc] | Zsat[kpc] |Xhost[kpc] | Yhost[kpc] Zhost[kpc] |  ")
+f.write("Time(Gyrs) | Rgal(kpc) | Xsat[kpc] | Ysat[kpc] | Zsat[kpc] |Xhost[kpc] | Yhost[kpc] Zhost[kpc] |" \
+        " Vgal | Vxsat | Vysat | Vzsat | Vxhost | Vyhost | Vzhost | ")
 for i in range(0, len(Rgal)):
-    f.write("%f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \n"%(time[i], Rgal[i], Xsat[i], Ysat[i], \
+    f.write("%f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \n"%(time[i], Rgal[i], Xsat[i], Ysat[i], \
     Zsat[i], X[i], Y[i], Z[i], VXsat[i], VYsat[i], VZsat[i], VX[i], VY[i], VZ[i]))
 f.close()
