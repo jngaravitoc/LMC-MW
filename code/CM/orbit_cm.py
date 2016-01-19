@@ -131,8 +131,8 @@ for i in range(0,len(X)):
 
 f = open("rgal_snaps_l0.txt", 'w')
 f.write("#Time(Gyrs) | Rgal(kpc) | Xsat[kpc] | Ysat[kpc] | Zsat[kpc] |Xhost[kpc] | Yhost[kpc] Zhost[kpc] |" \
-        " Vgal | Vxsat | Vysat | Vzsat | Vxhost | Vyhost | Vzhost | ")
+        " Vgal | Vxsat | Vysat | Vzsat | Vxhost | Vyhost | Vzhost | \n")
 for i in range(0, len(Rgal)):
-    f.write("%f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \n"%(time[i], Rgal[i], Xsat[i], Ysat[i], \
-    Zsat[i], X[i], Y[i], Z[i], VXsat[i], VYsat[i], VZsat[i], VX[i], VY[i], VZ[i]))
+    f.write("%f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \n"%(time[i], Rgal[i], Xsat[i], Ysat[i], \
+    Zsat[i], X[i], Y[i], Z[i], Vgal[i], VXsat[i], VYsat[i], VZsat[i], VX[i], VY[i], VZ[i]))
 f.close()
