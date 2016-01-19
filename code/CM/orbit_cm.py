@@ -10,7 +10,6 @@ import argparse
 
 #output = parser.parse_args()
 
-print len(sys.argv)
 
 if len(sys.argv) != 4:
     print 'Usage: python orbit_cm.py snap_base_name inital_snap_number final_snap_number'
@@ -131,7 +130,7 @@ for i in range(0,len(X)):
 
 
 f = open("rgal_snaps_l0.txt", 'w')
-f.write("Time(Gyrs) | Rgal(kpc) | Xsat[kpc] | Ysat[kpc] | Zsat[kpc] |Xhost[kpc] | Yhost[kpc] Zhost[kpc] |" \
+f.write("#Time(Gyrs) | Rgal(kpc) | Xsat[kpc] | Ysat[kpc] | Zsat[kpc] |Xhost[kpc] | Yhost[kpc] Zhost[kpc] |" \
         " Vgal | Vxsat | Vysat | Vzsat | Vxhost | Vyhost | Vzhost | ")
 for i in range(0, len(Rgal)):
     f.write("%f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \n"%(time[i], Rgal[i], Xsat[i], Ysat[i], \
