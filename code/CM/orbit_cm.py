@@ -11,9 +11,9 @@ import argparse
 #output = parser.parse_args()
 
 
-if len(sys.argv) != 4:
+if len(sys.argv) != 5:
     print 'Usage: python orbit_cm.py snap_base_name inital_snap_number final_snap_number'
-    print 'Ex: python orbit_cm.py snap 0 50'
+    print 'Ex: python orbit_cm.py snap 0 50 out_name'
     sys.exit(0)
 
 
@@ -22,11 +22,12 @@ snap = str(sys.argv[1])
 # Initial and final snapshot number
 i_n = float(sys.argv[2])
 i_f = float(sys.argv[3])
-path = '../../data/LMCMW/MW1LMC4/snapshots/'
+out_name = str(sys.argv[4])
+path = '../../data/LMCMW/MW1LMC4/a1/'
 
 # Number of Snapshots
 N_snaps = (i_f - i_n) + 1
-delta = 50 # precision of the CM computation in Kpc.
+deltar = 80 # precision of the CM computation in Kpc.
 #Position and velocity arrays for the host and the satellite
 X = np.zeros(N_snaps)
 Y = np.zeros(N_snaps)
@@ -50,7 +51,7 @@ Vgal = np.zeros(N_snaps)
 time = np.zeros(N_snaps)
 
 # Defining function that computes the CM of the halo: 
-def CM(x, y, z, delta):
+def CM(x, y, z, vx, vy, vz, delta):
 
     N = len(x) # Numero de particulas
     xCM = sum(x)/N
@@ -60,6 +61,10 @@ def CM(x, y, z, delta):
     xCM_new = xCM
     yCM_new = yCM
     zCM_new = zCM
+
+    vxCM_new = sum(vx)/N
+    vyCM_new = sum(vy)/N
+    vzCM_new = sum(vz)/N
 
     xCM = 0.0
     yCM = 0.0
@@ -81,11 +86,17 @@ def CM(x, y, z, delta):
         x = x[index]
         y = y[index]
         z = z[index]
+        vx = vx[index]
+        vy = vy[index]
+        vz = vz[index]
         #Computing new CM
         xCM_new = sum(x)/len(x)
         yCM_new = sum(y)/len(y)
         zCM_new = sum(z)/len(z)
-    return xCM_new, yCM_new, zCM_new
+        vxCM_new = sum(vx)/len(vx)
+        vyCM_new = sum(vy)/len(vy)
+        vzCM_new = sum(vz)/len(vz)
+    return xCM_new, yCM_new, zCM_new, vxCM_new, vyCM_new, vzCM_new
 
 for i in range(0,len(X)):
     if i<10:
@@ -120,16 +131,13 @@ for i in range(0,len(X)):
     vy_lmc = velocities[index_LMC[0],1]
     vz_lmc = velocities[index_LMC[0],2]
 
-    X[i], Y[i], Z[i] = CM(x_mw, y_mw, z_mw, delta)
-    Xsat[i], Ysat[i], Zsat[i]  = CM(x_lmc, y_lmc, z_lmc, delta)
+    X[i], Y[i], Z[i], VX[i], VY[i], VZ[i] = CM(x_mw, y_mw, z_mw, vx_mw, vy_mw, vz_mw, deltar)
+    Xsat[i], Ysat[i], Zsat[i], VXsat[i], VYsat[i], VZsat[i]  = CM(x_lmc, y_lmc, z_lmc, vx_lmc, vy_lmc, vz_lmc, deltar)
     Rgal[i] = np.sqrt((X[i] - Xsat[i])**2 + (Y[i]-Ysat[i])**2 + (Z[i] - Zsat[i])**2)
-
-    VX[i], VY[i], VZ[i] = CM(vx_mw, vy_mw, vz_mw, delta)
-    VXsat[i], VYsat[i], VZsat[i]  = CM(vx_lmc, vy_lmc, vz_lmc, delta)
     Vgal[i] = np.sqrt((VX[i] - VXsat[i])**2 + (VY[i]-VYsat[i])**2 + (VZ[i] - VZsat[i])**2)
 
 
-f = open("rgal_snaps_l0.txt", 'w')
+f = open(out_name + ".txt", 'w')
 f.write("#Time(Gyrs) | Rgal(kpc) | Xsat[kpc] | Ysat[kpc] | Zsat[kpc] |Xhost[kpc] | Yhost[kpc] Zhost[kpc] |" \
         " Vgal | Vxsat | Vysat | Vzsat | Vxhost | Vyhost | Vzhost | \n")
 for i in range(0, len(Rgal)):
