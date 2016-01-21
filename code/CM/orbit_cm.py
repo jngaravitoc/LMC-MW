@@ -30,7 +30,8 @@ path = '../../data/LMCMW/MW1LMC4/a1n/'
 
 # Number of Snapshots
 N_snaps = (i_f - i_n) + 1
-deltar = 6 # precision of the CM computation in Kpc.
+deltar = 2 # precision of the CM computation in Kpc.
+
 #Position and velocity arrays for the host and the satellite
 X = np.zeros(N_snaps)
 Y = np.zeros(N_snaps)
@@ -57,9 +58,6 @@ time = np.zeros(N_snaps)
 def CM(x, y, z, vx, vy, vz, delta):
 
     N = len(x) # Numero de particulas
-    #vxCM_new = sum(vx)/N
-    #vyCM_new = sum(vy)/N
-    #vzCM_new = sum(vz)/N
     if N==0:
         xCM_new = -9999
         yCM_new = -9999
@@ -112,7 +110,7 @@ def CM(x, y, z, vx, vy, vz, delta):
             vz = vz[index]
             #Computing new CM
             #if len(x)>0:
-            print len(x)
+            #rint len(x)
             xCM_new = sum(x)/len(x)
             yCM_new = sum(y)/len(y)
             zCM_new = sum(z)/len(z)
@@ -138,11 +136,11 @@ for i in range(i_n, i_f + 1):
         velocities = readsnap(path + snap + "_" + str(i), 'vel', 'dm')
         particles_ids = readsnap(path + snap + "_" + str(i), 'pid', 'dm')
 
-    X = np.sort(particles_ids)
+    ID = np.sort(particles_ids)
     # The first set of particles are from the host DM halo, the
     # second set are from the satellite DM halo, the limit is know by
     # the number of particles in the host halo.
-    idcut = X[Nhost-1]
+    idcut = ID[Nhost-1]
     index_mw = np.where(particles_ids<=idcut)
     index_LMC = np.where(particles_ids>idcut)
     #index_mw = np.where(particles_ids<=X[idcut])
@@ -169,9 +167,9 @@ for i in range(i_n, i_f + 1):
 
 
 f = open(out_name + ".txt", 'w')
-f.write("#Time(Gyrs) | Rgal(kpc) | Xsat[kpc] | Ysat[kpc] | Zsat[kpc] |Xhost[kpc] | Yhost[kpc] Zhost[kpc] |" \
-        " Vgal | Vxsat | Vysat | Vzsat | Vxhost | Vyhost | Vzhost | \n")
+f.write("#Time(Gyrs) | Rgal(kpc) | Xsat[kpc] | Ysat[kpc] | Zsat[kpc] |Xhost[kpc] | Yhost[kpc] Zhost[kpc] |"\
+        " Vgal | Vxsat | Vysat | Vzsat | Vxhost | Vyhost | Vzhost |\n")
 for i in range(0, len(Rgal)):
-    f.write("%f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \n"%(time[i], Rgal[i], Xsat[i], Ysat[i], \
+    f.write("%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n"%(time[i], Rgal[i], Xsat[i], Ysat[i],\
     Zsat[i], X[i], Y[i], Z[i], Vgal[i], VXsat[i], VYsat[i], VZsat[i], VX[i], VY[i], VZ[i]))
 f.close()
