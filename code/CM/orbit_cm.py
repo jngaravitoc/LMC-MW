@@ -11,9 +11,10 @@ import argparse
 #output = parser.parse_args()
 
 
-if len(sys.argv) != 7:
-    print 'Usage: python orbit_cm.py snap_base_name inital_snap_number final_snap_number'
-    print 'Ex: python orbit_cm.py snap 0 50 out_name Nhost Nsat'
+if len(sys.argv) != 8:
+    print 'Usage: python orbit_cm.py snap_base_name inital_snap_number'\
+           'final_snap_number path2file out?name  #DMhost #DMsat'
+    print 'Ex: python orbit_cm.py snap 0 50 pat2file out_name Nhost Nsat'
     sys.exit(0)
 
 
@@ -22,11 +23,11 @@ snap = str(sys.argv[1])
 # Initial and final snapshot number
 i_n = int(sys.argv[2])
 i_f = int(sys.argv[3])
-out_name = str(sys.argv[4])
-Nhost = int(sys.argv[5])
-Nsat = int(sys.argv[6])
+out_name = str(sys.argv[5])
+Nhost = int(sys.argv[6])
+Nsat = int(sys.argv[7])
 
-path = '../../data/LMCMW/MW1LMC4/a1n/'
+path = str(sys.argv[4])#'../../data/LMCMW/MW1LMC4/a1/'
 
 # Number of Snapshots
 N_snaps = (i_f - i_n) + 1
@@ -166,7 +167,7 @@ for i in range(i_n, i_f + 1):
     Vgal[i-i_n] = np.sqrt((VX[i-i_n] - VXsat[i-i_n])**2 + (VY[i-i_n]-VYsat[i-i_n])**2 + (VZ[i-i_n] - VZsat[i-i_n])**2)
 
 
-f = open(out_name + ".txt", 'w')
+f = open(out_name, 'w')
 f.write("#Time(Gyrs) | Rgal(kpc) | Xsat[kpc] | Ysat[kpc] | Zsat[kpc] |Xhost[kpc] | Yhost[kpc] Zhost[kpc] |"\
         " Vgal | Vxsat | Vysat | Vzsat | Vxhost | Vyhost | Vzhost |\n")
 for i in range(0, len(Rgal)):
