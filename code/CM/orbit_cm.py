@@ -11,9 +11,10 @@ import argparse
 #output = parser.parse_args()
 
 
-if len(sys.argv) != 5:
-    print 'Usage: python orbit_cm.py snap_base_name inital_snap_number final_snap_number'
-    print 'Ex: python orbit_cm.py snap 0 50 out_name'
+if len(sys.argv) != 8:
+    print 'Usage: python orbit_cm.py snap_base_name inital_snap_number'\
+           'final_snap_number path2file out?name  #DMhost #DMsat'
+    print 'Ex: python orbit_cm.py snap 0 50 pat2file out_name Nhost Nsat'
     sys.exit(0)
 
 
@@ -22,12 +23,16 @@ snap = str(sys.argv[1])
 # Initial and final snapshot number
 i_n = int(sys.argv[2])
 i_f = int(sys.argv[3])
-out_name = str(sys.argv[4])
-path = '../../data/LMCMW/MW1LMC4/a1/'
+out_name = str(sys.argv[5])
+Nhost = int(sys.argv[6])
+Nsat = int(sys.argv[7])
+
+path = str(sys.argv[4])#'../../data/LMCMW/MW1LMC4/a1/'
 
 # Number of Snapshots
 N_snaps = (i_f - i_n) + 1
-deltar = 30 # precision of the CM computation in Kpc.
+deltar = 2 # precision of the CM computation in Kpc.
+
 #Position and velocity arrays for the host and the satellite
 X = np.zeros(N_snaps)
 Y = np.zeros(N_snaps)
@@ -54,9 +59,7 @@ time = np.zeros(N_snaps)
 def CM(x, y, z, vx, vy, vz, delta):
 
     N = len(x) # Numero de particulas
-    print N
     if N==0:
-        print 'here'
         xCM_new = -9999
         yCM_new = -9999
         zCM_new = -9999
@@ -71,7 +74,6 @@ def CM(x, y, z, vx, vy, vz, delta):
         vyCM_new = vy
         vzCM_new = vz
     if N>1:
-        print N
         xCM = sum(x)/N
         yCM = sum(y)/N
         zCM = sum(z)/N
@@ -100,7 +102,7 @@ def CM(x, y, z, vx, vy, vz, delta):
             # Finding the largest distance/velocity from the CM
             Rmax = max(R)
             # Selecting particles within half of the maximum radius
-            index = np.where(r<Rmax/3.0)
+            index = np.where(r<Rmax/2.0)
             x = x[index]
             y = y[index]
             z = z[index]
@@ -108,6 +110,8 @@ def CM(x, y, z, vx, vy, vz, delta):
             vy = vy[index]
             vz = vz[index]
             #Computing new CM
+            #if len(x)>0:
+            #rint len(x)
             xCM_new = sum(x)/len(x)
             yCM_new = sum(y)/len(y)
             zCM_new = sum(z)/len(z)
@@ -116,24 +120,30 @@ def CM(x, y, z, vx, vy, vz, delta):
             vzCM_new = sum(vz)/len(vz)
     return xCM_new, yCM_new, zCM_new, vxCM_new, vyCM_new, vzCM_new
 
-for i in range(i_n, i_f):
+for i in range(i_n, i_f + 1):
     if i<10:
         time[i-i_n] = readheader(path + snap + "_00" + str(i),'time')
         positions = readsnap(path + snap + "_00" + str(i),'pos', 'dm')
         velocities = readsnap(path + snap + "_00" + str(i), 'vel', 'dm')
         particles_ids = readsnap(path + snap + "_00" + str(i), 'pid', 'dm')
-    else:
+    elif ((i>=10) & (i<100)):
         time[i-i_n] = readheader(path + snap + "_0" + str(i),'time')
         positions = readsnap(path + snap + "_0" + str(i),'pos', 'dm')
         velocities = readsnap(path + snap + "_0" + str(i), 'vel', 'dm')
         particles_ids = readsnap(path + snap + "_0" + str(i), 'pid', 'dm')
+    else:
+        time[i-i_n] = readheader(path + snap + "_" + str(i),'time')
+        positions = readsnap(path + snap + "_" + str(i),'pos', 'dm')
+        velocities = readsnap(path + snap + "_" + str(i), 'vel', 'dm')
+        particles_ids = readsnap(path + snap + "_" + str(i), 'pid', 'dm')
 
-    X = np.sort(particles_ids)
-    # The first half of particles are from the host DM halo, the 
-    # second half are from the satellite DM halo.
-    #idcut = int(len(X)/2.0 - 1.0)
-    index_mw = np.where(particles_ids<=max(X))
-    index_LMC = np.where(particles_ids>max(X))
+    ID = np.sort(particles_ids)
+    # The first set of particles are from the host DM halo, the
+    # second set are from the satellite DM halo, the limit is know by
+    # the number of particles in the host halo.
+    idcut = ID[Nhost-1]
+    index_mw = np.where(particles_ids<=idcut)
+    index_LMC = np.where(particles_ids>idcut)
     #index_mw = np.where(particles_ids<=X[idcut])
     #index_LMC = np.where(particles_ids>X[idcut])
 
@@ -157,10 +167,10 @@ for i in range(i_n, i_f):
     Vgal[i-i_n] = np.sqrt((VX[i-i_n] - VXsat[i-i_n])**2 + (VY[i-i_n]-VYsat[i-i_n])**2 + (VZ[i-i_n] - VZsat[i-i_n])**2)
 
 
-f = open(out_name + ".txt", 'w')
-f.write("#Time(Gyrs) | Rgal(kpc) | Xsat[kpc] | Ysat[kpc] | Zsat[kpc] |Xhost[kpc] | Yhost[kpc] Zhost[kpc] |" \
-        " Vgal | Vxsat | Vysat | Vzsat | Vxhost | Vyhost | Vzhost | \n")
+f = open(out_name, 'w')
+f.write("#Time(Gyrs) | Rgal(kpc) | Xsat[kpc] | Ysat[kpc] | Zsat[kpc] |Xhost[kpc] | Yhost[kpc] Zhost[kpc] |"\
+        " Vgal | Vxsat | Vysat | Vzsat | Vxhost | Vyhost | Vzhost |\n")
 for i in range(0, len(Rgal)):
-    f.write("%f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \t %f \n"%(time[i], Rgal[i], Xsat[i], Ysat[i], \
+    f.write("%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n"%(time[i], Rgal[i], Xsat[i], Ysat[i],\
     Zsat[i], X[i], Y[i], Z[i], Vgal[i], VXsat[i], VYsat[i], VZsat[i], VX[i], VY[i], VZ[i]))
 f.close()
