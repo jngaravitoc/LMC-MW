@@ -5,6 +5,7 @@ from astropy import constants, units
 Mvir = float(sys.argv[1])
 Rvir = float(sys.argv[2])
 Rs = float(sys.argv[3])
+cvir = float(sys.argv[4])
 
 
 #Function that return the f function of the NFW profile.
@@ -30,7 +31,7 @@ def bissection(cvir):
         #print c_init
         if y>0:
             max_c200 = c_init
-        if (y<0) :
+        if y<0:
             min_c200 = c_init
         c_init = 0.5*(min_c200 + max_c200)
         y = c(cvir, c_init)
@@ -86,7 +87,9 @@ def ars_v(c200, r200):
 print "This code assume that your initial parameters are Mvir(NFW), Rvir(NFW) and Rs(NFW)"
 print "Vvir (NFW)", vvir(Mvir)
 
-cvir = Rvir / Rs
+if cvir==0.0:
+    cvir = Rvir / Rs
+
 print "cvir(NFW) = ", cvir
 c200 = bissection(cvir)
 print "c200(NFW) = ", c200
