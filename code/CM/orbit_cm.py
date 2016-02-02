@@ -26,12 +26,12 @@ i_f = int(sys.argv[3])
 out_name = str(sys.argv[5])
 Nhost = int(sys.argv[6])
 Nsat = int(sys.argv[7])
-
 path = str(sys.argv[4])#'../../data/LMCMW/MW1LMC4/a1/'
 
 # Number of Snapshots
 N_snaps = (i_f - i_n) + 1
-deltar = 2 # precision of the CM computation in Kpc.
+
+deltar = 0.5 # precision of the CM computation in Kpc.
 
 #Position and velocity arrays for the host and the satellite
 X = np.zeros(N_snaps)
@@ -59,65 +59,51 @@ time = np.zeros(N_snaps)
 def CM(x, y, z, vx, vy, vz, delta):
 
     N = len(x) # Numero de particulas
-    if N==0:
-        xCM_new = -9999
-        yCM_new = -9999
-        zCM_new = -9999
-        vxCM_new = -9999
-        vyCM_new = -9999
-        vzCM_new = -9999
-    if N==1:
-        xCM_new = x
-        yCM_new = y
-        zCM_new = z
-        vxCM_new = vx
-        vyCM_new = vy
-        vzCM_new = vz
-    if N>1:
-        xCM = sum(x)/N
-        yCM = sum(y)/N
-        zCM = sum(z)/N
+    xCM = sum(x)/N
+    yCM = sum(y)/N
+    zCM = sum(z)/N
 
-        xCM_new = xCM
-        yCM_new = yCM
-        zCM_new = zCM
+    xCM_new = xCM
+    yCM_new = yCM
+    zCM_new = zCM
 
-        vxCM_new = sum(vx)/N
-        vyCM_new = sum(vy)/N
-        vzCM_new = sum(vz)/N
+    vxCM_new = sum(vx)/N
+    vyCM_new = sum(vy)/N
+    vzCM_new = sum(vz)/N
 
-        xCM = 0.0
-        yCM = 0.0
-        zCM = 0.0
+    xCM = 0.0
+    yCM = 0.0
+    zCM = 0.0
 
-        while ((np.sqrt((xCM_new-xCM)**2 + (yCM_new-yCM)**2 \
-              +(zCM_new-zCM)**2) > delta)):
-            xCM = xCM_new
-            yCM = yCM_new
-            zCM = zCM_new
-            Rcm = np.sqrt(xCM**2 + yCM**2 + zCM**2)
-            r = np.sqrt(x**2 + y**2 + z**2)
-            # distance from the CM to all the particles
-            R = np.sqrt((x - xCM)**2 + (y - yCM)**2 + (z - zCM)**2)
-            # Finding the largest distance/velocity from the CM
-            Rmax = max(R)
-            # Selecting particles within half of the maximum radius
-            index = np.where(r<Rmax/2.0)
-            x = x[index]
-            y = y[index]
-            z = z[index]
-            vx = vx[index]
-            vy = vy[index]
-            vz = vz[index]
-            #Computing new CM
-            #if len(x)>0:
-            #rint len(x)
-            xCM_new = sum(x)/len(x)
-            yCM_new = sum(y)/len(y)
-            zCM_new = sum(z)/len(z)
-            vxCM_new = sum(vx)/len(vx)
-            vyCM_new = sum(vy)/len(vy)
-            vzCM_new = sum(vz)/len(vz)
+    while ((np.sqrt((xCM_new-xCM)**2 + (yCM_new-yCM)**2 \
+          +(zCM_new-zCM)**2) > delta)):
+        xCM = xCM_new
+        yCM = yCM_new
+        zCM = zCM_new
+        Rcm = np.sqrt(xCM**2 + yCM**2 + zCM**2)
+        r = np.sqrt(x**2 + y**2 + z**2)
+        # distance from the CM to all the particles
+        R = np.sqrt((x - xCM)**2 + (y - yCM)**2 + (z - zCM)**2)
+        # Finding the largest distance/velocity from the CM
+        Rmax = max(R)
+        # Selecting particles within half of the maximum radius
+        index = np.where(R<Rmax/2.0)
+        x = x[index]
+        y = y[index]
+        z = z[index]
+        vx = vx[index]
+        vy = vy[index]
+        vz = vz[index]
+        #Computing new CM
+        if len(x)<100:
+            sys.exit('Less than 100 particles')
+        print len(x)
+        xCM_new = sum(x)/len(x)
+        yCM_new = sum(y)/len(y)
+        zCM_new = sum(z)/len(z)
+        vxCM_new = sum(vx)/len(vx)
+        vyCM_new = sum(vy)/len(vy)
+        vzCM_new = sum(vz)/len(vz)
     return xCM_new, yCM_new, zCM_new, vxCM_new, vyCM_new, vzCM_new
 
 for i in range(i_n, i_f + 1):
@@ -161,15 +147,21 @@ for i in range(i_n, i_f + 1):
     vy_lmc = velocities[index_LMC[0],1]
     vz_lmc = velocities[index_LMC[0],2]
 
-    X[i-i_n], Y[i-i_n], Z[i-i_n], VX[i-i_n], VY[i-i_n], VZ[i-i_n] = CM(x_mw, y_mw, z_mw, vx_mw, vy_mw, vz_mw, deltar)
-    Xsat[i-i_n], Ysat[i-i_n], Zsat[i-i_n], VXsat[i-i_n], VYsat[i-i_n], VZsat[i-i_n]  = CM(x_lmc, y_lmc, z_lmc, vx_lmc, vy_lmc, vz_lmc, deltar)
-    Rgal[i-i_n] = np.sqrt((X[i-i_n] - Xsat[i-i_n])**2 + (Y[i-i_n]-Ysat[i-i_n])**2 + (Z[i-i_n] - Zsat[i-i_n])**2)
-    Vgal[i-i_n] = np.sqrt((VX[i-i_n] - VXsat[i-i_n])**2 + (VY[i-i_n]-VYsat[i-i_n])**2 + (VZ[i-i_n] - VZsat[i-i_n])**2)
+    X[i-i_n], Y[i-i_n], Z[i-i_n], VX[i-i_n], VY[i-i_n], VZ[i-i_n] = \
+         CM(x_mw, y_mw, z_mw, vx_mw, vy_mw, vz_mw, deltar)
+    Xsat[i-i_n], Ysat[i-i_n], Zsat[i-i_n], VXsat[i-i_n],\
+        VYsat[i-i_n], VZsat[i-i_n]  = CM(x_lmc, y_lmc, \
+        z_lmc, vx_lmc, vy_lmc, vz_lmc, deltar)
+    Rgal[i-i_n] = np.sqrt((X[i-i_n] - Xsat[i-i_n])**2 + \
+        (Y[i-i_n]-Ysat[i-i_n])**2 + (Z[i-i_n] - Zsat[i-i_n])**2)
+    Vgal[i-i_n] = np.sqrt((VX[i-i_n] - VXsat[i-i_n])**2 + \
+        (VY[i-i_n]-VYsat[i-i_n])**2 + (VZ[i-i_n] - VZsat[i-i_n])**2)
 
 
 f = open(out_name, 'w')
 f.write("#Time(Gyrs) | Rgal(kpc) | Xsat[kpc] | Ysat[kpc] | Zsat[kpc] |Xhost[kpc] | Yhost[kpc] Zhost[kpc] |"\
-        " Vgal | Vxsat | Vysat | Vzsat | Vxhost | Vyhost | Vzhost |\n")
+        "Vgal | Vxsat | Vysat | Vzsat | Vxhost | Vyhost | Vzhost |\n")
+
 for i in range(0, len(Rgal)):
     f.write("%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n"%(time[i], Rgal[i], Xsat[i], Ysat[i],\
     Zsat[i], X[i], Y[i], Z[i], Vgal[i], VXsat[i], VYsat[i], VZsat[i], VX[i], VY[i], VZ[i]))
