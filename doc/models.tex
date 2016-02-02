@@ -1,5 +1,9 @@
 %\chapter{models}\label{sec:models}
-\section{Galaxy Models}\label{sec:models}
+\section{Numerical Methods}\label{sec:models}
+We made use of the public code GalIC to build the Milky Way and the
+LMC initial conditions.
+\subsection{Milky Way model}
+
 
 In order to model the MW we use a Hernquist profile for the dark matter halo 
 a exponential profile for the disk and a Hernquist profile for the bulge. For
@@ -7,10 +11,19 @@ the LMC we also use a Hernquist model. In the following subsection we explain
 in detail how the parameters of this profiles are chosen following the observational 
 evidence from \verb+\citep{vandermarel14}+. 
 
-\subsection{MW model}
 
-Currently the mass of the MW is estimated in the range $M_{vir} = 1 - 2 \times 10 ^12 M\odot$. Following 
-\verb+\citep{gomez15}+ take $M_{vir} = 1 \times 10^{12}, 1.5\times 10^{12}, 2 \times 10^{12}] M_{\odot}$.
+Many groups have attempted to measure the mass of the Milky Way,
+There is still no agreement. 
+
+Therefore following \citep{Gomez15} we use three Milky Way models with
+a halo, disk and bulge component. The halo masses are $M_{vir} = 1, 1.5, 
+2\times 10 ^12 M\odot$, the concentration parameter are those
+predicted by $\Lambda CDM$ \citep{Kyplin}. The Disk is modeled using a 
+exponential disk with $R_d=3.5kpc$ and $z_0 = 0.53 kpc$ and masses
+$6.5, 5.5, 5.0 \time10^{10} M_{\odot}$.
+Finally the Bulge have a mass of $Mvir=1\time10^{10}M_{\odot}$ and a
+scale length $r_c=0.7 kpc$, we summarize all this values in
+Table\ref{tab:MWmodels}.
 
 \begin{table}[H]{\label{tab:MW}}
 \begin{center}
@@ -24,11 +37,12 @@ $M_{vir} $ & $R_{vir}$ & $r_s$ & $M_{disk}$ & 10 & $M_{bulge}$ & $c_{bulge} $ & 
 200 & 329 & 35.15 & 5.0 & 3.5 & 1.0 & 0.7 & 194 & 9.38 & 325.8 & 289 & 69.2 \\
 \hline
 \end{tabular}
+\caption{Summary of the Milky Way models.\lable{tab:MWmodels}}
 \end{center}
 \end{table}
 
 The concentration parameter was derived using the relation from 
-\verb+\citep{klypin11}+ 
+\verb+\citep{klypin11}+
 
 \begin{equation}
 c(M_{vir}) = 9.6(\dfrac{Mvir}{10^12 h^{-1} M\odot})^{-0.075}
@@ -63,8 +77,8 @@ $V_vir$ & 124.76\\
 \end{tabular}
 \end{table}
 
-This values comes from the code \verb+GalIC_input.py+ the code needs as parameter 
-$Rvir$ and $r_s$ and it runs as follows:
+This values comes from the code \verb+GalIC_input.py+ the code needs 
+as parameter $Rvir$ and $r_s$ and it runs as follows:
 
 \begin{verbatim}
 python GalIC_input.py 9.25E11 255.8275 25.79402
