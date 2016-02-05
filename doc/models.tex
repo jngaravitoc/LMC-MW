@@ -1,18 +1,18 @@
 %\chapter{models}\label{sec:models}
 \section{Numerical Methods}\label{sec:models}
 
-We set up a suit of 15 N-body controlled simulations using the public available code
+We set up a suite of 15 controlled N-body simulations using the public available code
 \verb+Gadget2+. We have three models for the Milky Way and five models
 for the Large Magellanic Cloud, the detailed parameters of the models
 are resumed in table \ref{tab:MW} and \ref{tab:LMC}. In section
 \ref{sec:MW} and \ref{sec:LMC} we discuss the motivation and
 observational evidence for these models. The initial conditions of the
-Milky Way and the Large Magellanic Cloud model where set up using the
+Milky Way and the Large Magellanic Cloud model were set up using the
 public available code \verb+GalIC+.
 
-In order to reproduce the actual positions and velocity of the Large
-Magellanic Cloud with respect with the Milky Way in a first infall
-scenario. We integrate the orbits backwards analytically from
+In order to reproduce the actual position and velocity of the Large
+Magellanic Cloud with respect to the Milky Way in a first infall
+scenario, we integrate the orbits backwards analytically from
 the present position and velocity.
 
 
@@ -21,30 +21,30 @@ the present position and velocity.
 
 Many groups have attempted to measure the mass of the Milky Way with
 different approaches. \verb+Sohn et al 13+ measures the galactocentric
-velocity of the Leo I satellite which is movin at $196.0 \pm 19.4
-km/s$, this suggest a minimum mass of $M_{vir} =0.75 \times
+velocity of the Leo I satellite which is moving at $196.0 \pm 19.4
+km/s$. This suggest a minimum mass of $M_{vir} =0.75 \times
 10^{12}M_{\odot}$. \citep{vandermarel12} using the timing argument
 estimate that the mass of the Local Group is $3.17\pm 0.5 \times 10^
-{12}M_{\odot}$ this suggest that at most the mass of the Milky Way is
+{12}M_{\odot}$ this implies that at most the mass of the Milky Way is
 $M_{vir} = 2 \times 10^{12}M_{\odot}$. Due to this uncertainty we
 model the Milky Way mass within a range of $1-2 \times
 ^{10}M_{\odot}$.
 
 Following \citep{Gomez15} each of the models of the Milky Way have
-a halo, disk and bulge component. The halo is modeled using a
+a halo, a disk, and a bulge component. The halo is modeled using a
 Hernquist profile with the condition that the enclosed mass
-within $r_{vir}$ is the same as with an NFW profile see \ref{fig:MW}
-and \ref{Appendix} for a detailed calculation also see the appendix
+within $r_{vir}$ is the same as with an NFW profile see \ref{fig:MW},
+for a detailed calculation see \ref{sec:Appendix} and the appendix
 in \citep{Vandermarel12}. The concentration of the halo is
-derived following \citep{Klypin11} which derives a concentration
+computed following \citep{Klypin11} which derives a concentration
 mass relation for halos in a $\Lambda CDM$
-Universe. Nevertheless with such a concentration the disk of
-the Milky Way have to be more massive in order to reproduce the
+Universe. Nevertheless, with such a concentration, the disk
+have to be more massive in order to reproduce the
 observed rotation curve of the Milky Way, or the concentration
-parameter should be $\sim 30\%$ larger. Finally the Disk of the
-Milky Way is modeled using an exponential disk and
-the Bulge with a Hernquist model, the detailed parameters are resumed
-in table \ref{tab:MWmodels}.
+parameter should be $\sim 30\%$ larger. Finally, the Disk of the
+Milky Way is modeled using an exponential profile disk and
+the Bulge with a Hernquist profile, the detailed parameters are
+summarized in table \ref{tab:MWmodels}.
 
 \begin{table}[H]{\label{tab:MW}}
 \begin{center}
