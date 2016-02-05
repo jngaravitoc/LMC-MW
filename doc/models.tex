@@ -1,29 +1,44 @@
 %\chapter{models}\label{sec:models}
 \section{Numerical Methods}\label{sec:models}
-We made use of the public code GalIC to build the Milky Way and the
-LMC initial conditions.
-\subsection{Milky Way model}
+
+We set up a suit of 15 N-body controlled simulations using the public available code
+\verb+Gadget2+. We have three models for the Milky Way and five models
+for the Large Magellanic Cloud, the detailed parameters of the models
+are resumed in table \ref{tab:MW} and \ref{tab:LMC}. In section
+\ref{sec:MW} and \ref{sec:LMC} we discuss the motivation and
+observational evidence for these models. The initial conditions of the
+Milky Way and Large Magellanic Cloud model where set up using the
+public available code GalIC.
+
+In order to reproduce the actual positions and velocity of the Large
+Magellanic Cloud with respect with the Milky Way in a first infall
+scenario. We integrate the orbits backwards analytically from
+the present position and velocity.
 
 
-In order to model the MW we use a Hernquist profile for the dark matter halo
-a exponential profile for the disk and a Hernquist profile for the bulge. For
-the LMC we also use a Hernquist model. In the following subsection we explain
-in detail how the parameters of this profiles are chosen following the observational
-evidence from \verb+\citep{vandermarel14}+.
 
+\subsection{Milky Way models:}\label{sec:MW}
 
 Many groups have attempted to measure the mass of the Milky Way,
-There is still no agreement.
+There is still no agreement. Due to this disagreement we model 
+the Milky Way mass within the range of $1-2 \times ^{10}M_{\odot}$
 
 Therefore following \citep{Gomez15} we use three Milky Way models with
-a halo, disk and bulge component. The halo masses are $M_{vir} = 1, 1.5,
-2\times 10 ^12 M\odot$, the concentration parameter are those
-predicted by $\Lambda CDM$ \citep{Kyplin}. The Disk is modeled using a 
-exponential disk with $R_d=3.5kpc$ and $z_0 = 0.53 kpc$ and masses
-$6.5, 5.5, 5.0 \time10^{10} M_{\odot}$.
-Finally the Bulge have a mass of $Mvir=1\time10^{10}M_{\odot}$ and a
-scale length $r_c=0.7 kpc$, we summarize all this values in
-Table\ref{tab:MWmodels}.
+a halo, disk and bulge component. The halo is modeled using a
+Hernquist profile, we impose the condition that the enclosed mass
+within $r_{vir}$ is the same as with an NFW profile see \ref{fig:MW}
+and \ref{Appendix} for a detailed calculation also see the appendix 
+in \citep{Vandermarel12}. The concentration of the halo is 
+derived following \citep{Klypin11} which derives a concentration
+mass relation for halos in a $\Lambda CDM$
+Universe. Nevertheless with such a concentration the disk of
+the Milky Way have to be more massive in order to reproduce the
+observed rotation curve of the Milky Way, or the concentration
+parameter should be $\sim 30\%$ larger.
+
+The Disk of the Milky Way is modeled using an exponential disk and
+the Bulge with a Hernquist model, the detailed parameters are resumed
+in table \ref{tab:MWmodels}.
 
 \begin{table}[H]{\label{tab:MW}}
 \begin{center}
@@ -32,12 +47,12 @@ Table\ref{tab:MWmodels}.
 \hline
 $M_{vir} $ & $R_{vir}$ & $r_s$ & $M_{disk}$ & 10 & $M_{bulge}$ & $c_{bulge} $ & $M_{Halo}$ & $c_{halo}$ & $R_{vir, halo}$ & $M_{H,halo}$ & $r_h $ \\
 \hline
-100 & 261 & 26.47 & 6.5 & 3.5 & 1.0 & 0.7 & 92.5 & 9.918 &  255.82 & 135 & 53.73 \\
+100 & 261 & 26.47 & 6.5 & 3.5 & 1.0 & 0.7 & 92.5 & 9.918 & 255.82 & 135 & 53.73 \\
 150 & 299 & 31.27 & 5.5 & 3.5 & 1.0 & 0.7 & 143.5 & 9.59 & 294.6 & 211  & 61.3 \\
 200 & 329 & 35.15 & 5.0 & 3.5 & 1.0 & 0.7 & 194 & 9.38 & 325.8 & 289 & 69.2 \\
 \hline
 \end{tabular}
-\caption{Summary of the Milky Way models.\lable{tab:MWmodels}}
+\caption{Summary of the Milky Way models \& parameters.\lable{tab:MWmodels}}
 \end{center}
 \end{table}
 
@@ -67,15 +82,6 @@ from GalIC) where $h=0.7$. $\Omega_m = 0.27$ and $\Delta_{vir}=360$ at $z=0$.
 
 The initial conditions that are the input values in the GalIC code are:
 
-\begin{table}
-\begin{tabular}{c c}
-\hline
-Parameter & Value \\
-\hline
-C & 9.91 \\
-$V_vir$ & 124.76\\
-\end{tabular}
-\end{table}
 
 This values comes from the code \verb+GalIC_input.py+ the code needs 
 as parameter $Rvir$ and $r_s$ and it runs as follows:
@@ -88,8 +94,9 @@ The IC corresponds to the ouput of $V_{vir}$ and $CC$, GalIC was modified
 in order to derive the Hernquist equivalence mass and the scale length for a
 Hernquist profile.
 
+%-------------------------------------------------------------------------------
 
-\subsection{LMC models}
+\subsection{Large Magellanic Cloud models:}\label{sec:LMC}
 
 We model the LMC in order with the aim of reproduce the observational 
 constraints in the LMC rotation curve and mass. \verb+\citep{vandermarel14}+
