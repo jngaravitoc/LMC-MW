@@ -2,12 +2,13 @@ import numpy as np
 from pygadgetreader import *
 import sys
 
-if len(sys.argv) != 4:
+if len(sys.argv) != 5:
     print " python CM_resolution.py MW1LMC4a1H6_000 0.1 30000"
     sys.exit('Dude! put the parameters!')
 snap = sys.argv[1]
 deltar = float(sys.argv[2])
 NhaloP = float(sys.argv[3]) # Number of particles in the halo.
+nameout = sys.argv[4]
 
 #Function that computes the CM of the halo, iteratively reducing the
 #volume of the halo
@@ -104,9 +105,6 @@ def potentialCM(potential, x, y, z):
     XCM, YCM, ZCM = x[minpotential], y[minpotential], z[minpotential]
     return XCM, YCM, ZCM
 
-
-
-
 Ph, Xh, Yh, Zh, VxH, VyH, VzH, idH, Pd, Xd, Yd, Zd, Vxd, Vyd, Vzd = loading_data(snap)
 XMW, YMW, ZMW, VxMW, VyMW, VzMW, XL, YL, ZL, VxL, VyL, VzL, PMW, PL = LMCMWparticles(idH, NhaloP, Xh, Yh, Zh, VxH, VyH, VzH, Ph)
 
@@ -119,3 +117,37 @@ XCMPL, YCMPL, ZCMPL = potentialCM(PL, XL, YL, ZL)
 XCMMW, YCMMW, ZCMMW, vXCMMW, vYCMMW, vZCMMW, RsMW = CM(XMW, YMW, ZMW, VxMW, VyMW, VzMW, deltar)
 XCMD, YCMD, ZCMD, vXCMD, vYCMD, vZCMD, RsD = CM(Xd, Yd, Zd, Vxd, Vyd, Vzd, deltar)
 XCML, YCML, ZCML, vXCML, vYCML, vZCML, RsL = CM(XL, YL, ZL, VxL, VyL, VzL, deltar)
+
+# Computing galactocentric radius
+Rmw = np.sqrt(XCMMW**2 + YCMMW**2 + ZCMMW**2)
+Vmw = np.sqrt(vXCMMW**2 + vYCMMW**2 + vZCMMW**2)
+
+Rlmc = np.sqrt(XCMMW**2 + YCMMW**2 + ZCMMW**2)
+Vlmc = np.sqrt(vXCMMW**2 + vYCMMW**2 + vZCMMW**2)
+
+Rd = np.sqrt(XCMD**2 + YCMD**2 + ZCMD**2)
+Vd = np.sqrt(vXCMD**2 + vYCMD**2 + vZCMD**2)
+
+RCMPMW = np.sqrt(XCMPMW**2 + YCMPMW**2 + ZCMPMW**2)
+RCMPD = np.sqrt(XCMPd**2 + YCMPd**2 + ZCMPd**2)
+RCMPL = np.sqrt(XCMPL**2 + YCMPL**2 + ZCMPL**2)
+
+fmw = open('MW'+nameout, 'w')
+fmw.write('RShell(kpc), Rmw, Vmw, Rpot \n')
+for i in range(len(RsMW)):
+    fmw.write(('%f %f %f %f\n')%(RsMW[i], Rmw[i], Vmw[i], RCMPMW))
+fmw.close()
+
+fd = open('Disk' + nameout, 'w')
+fd.write('RShell(kpc), Rdisk, Vdisk, RDpot \n')
+for i in range(len(RsD)):
+    fd.write(('%f %f %f %f\n')%(RsD[i], Rd[i], Vd[i], RCMPMW))
+fmw.close()
+
+
+fl = open('LMC' + nameout, 'w')
+fl.write('RShell(kpc), Rdisk, Vdisk, RDpot \n')
+for i in range(len(RsL)):
+    fl.write(('%f %f %f %f\n')%(RsL[i], Rlmc[i], Vlmc[i], RCMPL))
+fmw.close()
+
