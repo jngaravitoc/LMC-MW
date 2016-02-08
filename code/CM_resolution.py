@@ -3,8 +3,9 @@ from pygadgetreader import *
 import sys
 
 if len(sys.argv) != 5:
-    print " python CM_resolution.py MW1LMC4a1H6_000 0.1 30000"
-    sys.exit('Dude! put the parameters!')
+    print "Ex:"
+    print "python CM_resolution.py MW1LMC4a1H6_000 0.1 30000 outname"
+    sys.exit('Error: Not enough parameters')
 snap = sys.argv[1]
 deltar = float(sys.argv[2])
 NhaloP = float(sys.argv[3]) # Number of particles in the halo.
@@ -15,17 +16,18 @@ nameout = sys.argv[4]
 
 def CM(x, y, z, vx, vy, vz, delta):
     N = len(x)
-    xCM = sum(x)/len(x)
-    yCM = sum(y)/len(y)
-    zCM = sum(z)/len(z)
+    xCM = sum(x)/N
+    yCM = sum(y)/N
+    zCM = sum(z)/N
 
-    xCM_new = np.zeros(10000)
-    yCM_new = np.zeros(10000)
-    zCM_new = np.zeros(10000)
-    vxCM_new = np.zeros(10000)
-    vyCM_new = np.zeros(10000)
-    vzCM_new = np.zeros(10000)
-    Rnow = np.zeros(10000)
+    xCM_new = np.zeros(300)
+    yCM_new = np.zeros(300)
+    zCM_new = np.zeros(300)
+    vxCM_new = np.zeros(300)
+    vyCM_new = np.zeros(300)
+    vzCM_new = np.zeros(300)
+    Rnow = np.zeros(300)
+
     xCM_new[0] = xCM
     yCM_new[0] = yCM
     zCM_new[0] = zCM
@@ -48,7 +50,7 @@ def CM(x, y, z, vx, vy, vz, delta):
         Rcm = np.sqrt(xCM**2 + yCM**2 + zCM**2)
         R = np.sqrt((x - xCM)**2 + (y - yCM)**2 + (z - zCM)**2)
         Rmax = max(R)
-        index = np.where(R<Rmax/2.0)[0]
+        index = np.where(R<Rmax/1.3)[0]
         x = x[index]
         y = y[index]
         z = z[index]
@@ -64,8 +66,8 @@ def CM(x, y, z, vx, vy, vz, delta):
         vyCM_new[i] = (sum(vy)/N)
         vzCM_new[i] = (sum(vz)/N)
         Rnow[i] = max(np.sqrt((x - xCM_new[i])**2 + (y - yCM_new[i])**2 + (z - zCM_new[i])**2))
-    clean = np.where(xCM_new != 0)[0]
-    return xCM_new[clean], yCM_new[clean], zCM_new[clean], vxCM_new[clean], vyCM_new[clean], vxCM_new[clean], Rnow[clean]
+    clean = np.where(Rnow != 0)[0]
+    return xCM_new[clean], yCM_new[clean], zCM_new[clean], vxCM_new[clean], vyCM_new[clean], vzCM_new[clean], Rnow[clean]
 
 #function that reads the snapshot
 
@@ -89,8 +91,8 @@ def loading_data(filename):
 def LMCMWparticles(ids, NMW, x, y, z, vx, vy, vz, pot):
     X = np.sort(ids)
     limit = X[NMW]
-    index_MW = np.where(ids<=limit)[0]
-    index_LMC = np.where(ids>limit)[0]
+    index_MW = np.where(ids<limit)[0]
+    index_LMC = np.where(ids>=limit)[0]
     xmw, ymw, zmw = x[index_MW], y[index_MW], z[index_MW]
     vxmw, vymw, vzmw = vx[index_MW], vy[index_MW], vz[index_MW]
     xlmc, ylmc, zlmc = x[index_LMC], y[index_LMC], z[index_LMC]
@@ -102,29 +104,41 @@ def LMCMWparticles(ids, NMW, x, y, z, vx, vy, vz, pot):
 # Function that returns the coordiantes of the particle with the minimum potential
 
 def potentialCM(potential, x, y, z):
+    #rvir = np.where(np.sqrt(x**2 + y**2 + z**2) < 200)[0]
+    #potential, x, y, z = potential[rvir], x[rvir], y[rvir], z[rvir]
+    minpotential = np.where(potential == min(potential))
+    XCM, YCM, ZCM = x[minpotential], y[minpotential], z[minpotential]
+    return XCM, YCM, ZCM
+
+def potentialLCM(potential, x, y, z, Xcm, Ycm, Zcm):
+    r = np.sqrt((x-Xcm)**2 + (y-Ycm)**2 + (z-Zcm)**2)
+    rvir = np.where(r<100)
+    potential, x, y, z = potential[rvir], x[rvir], y[rvir], z[rvir]
     minpotential = np.where(potential == min(potential))
     XCM, YCM, ZCM = x[minpotential], y[minpotential], z[minpotential]
     return XCM, YCM, ZCM
 
 Ph, Xh, Yh, Zh, VxH, VyH, VzH, idH, Pd, Xd, Yd, Zd, Vxd, Vyd, Vzd = loading_data(snap)
+print 'Number of DM particles: ', len(Xh)
+print 'NUmber of Disk particles: ', len(Xd)
 XMW, YMW, ZMW, VxMW, VyMW, VzMW, XL, YL, ZL, VxL, VyL, VzL, PMW, PL = LMCMWparticles(idH, NhaloP, Xh, Yh, Zh, VxH, VyH, VzH, Ph)
-
-# Computing CM with the potential
-XCMPMW, YCMPMW, ZCMPMW = potentialCM(PMW, XMW, YMW, ZMW)
-XCMPd, YCMPd, ZCMPd = potentialCM(Pd, Xd, Yd, Zd)
-XCMPL, YCMPL, ZCMPL = potentialCM(PL, XL, YL, ZL)
 
 # Shell model
 XCMMW, YCMMW, ZCMMW, vXCMMW, vYCMMW, vZCMMW, RsMW = CM(XMW, YMW, ZMW, VxMW, VyMW, VzMW, deltar)
 XCMD, YCMD, ZCMD, vXCMD, vYCMD, vZCMD, RsD = CM(Xd, Yd, Zd, Vxd, Vyd, Vzd, deltar)
 XCML, YCML, ZCML, vXCML, vYCML, vZCML, RsL = CM(XL, YL, ZL, VxL, VyL, VzL, deltar)
 
+# Computing CM with the potential
+XCMPMW, YCMPMW, ZCMPMW = potentialCM(PMW, XMW, YMW, ZMW)
+XCMPd, YCMPd, ZCMPd = potentialCM(Pd, Xd, Yd, Zd)
+XCMPL, YCMPL, ZCMPL = potentialLCM(PL, XL, YL, ZL, XCML[-1], YCML[-1], ZCML[-1])
+
 # Computing galactocentric radius
 Rmw = np.sqrt(XCMMW**2 + YCMMW**2 + ZCMMW**2)
 Vmw = np.sqrt(vXCMMW**2 + vYCMMW**2 + vZCMMW**2)
 
-Rlmc = np.sqrt(XCMMW**2 + YCMMW**2 + ZCMMW**2)
-Vlmc = np.sqrt(vXCMMW**2 + vYCMMW**2 + vZCMMW**2)
+Rlmc = np.sqrt(XCML**2 + YCML**2 + ZCML**2)
+Vlmc = np.sqrt(vXCML**2 + vYCML**2 + vZCML**2)
 
 Rd = np.sqrt(XCMD**2 + YCMD**2 + ZCMD**2)
 Vd = np.sqrt(vXCMD**2 + vYCMD**2 + vZCMD**2)
@@ -133,24 +147,23 @@ RCMPMW = np.sqrt(XCMPMW**2 + YCMPMW**2 + ZCMPMW**2)
 RCMPD = np.sqrt(XCMPd**2 + YCMPd**2 + ZCMPd**2)
 RCMPL = np.sqrt(XCMPL**2 + YCMPL**2 + ZCMPL**2)
 
-print len(XCMMW)
+#------------------- Writing data ---------------------
 
 fmw = open('MW'+nameout, 'w')
 fmw.write('RShell(kpc), Rmw, Vmw, Rpot \n')
 for i in range(len(RsMW)):
-    fmw.write(('%f %f %f %f\n')%(RsMW[i], Rmw[i], Vmw[i], RCMPMW))
+    fmw.write(('%f %f %f %f \n')%(RsMW[i], Rmw[i], Vmw[i], RCMPMW))
 fmw.close()
 
-fd = open('Disk' + nameout, 'w')
+fd = open('Disk'+nameout, 'w')
 fd.write('RShell(kpc), Rdisk, Vdisk, RDpot \n')
 for i in range(len(RsD)):
-    fd.write(('%f %f %f %f\n')%(RsD[i], Rd[i], Vd[i], RCMPMW))
-fmw.close()
+    fd.write(('%f %f %f %f \n')%(RsD[i], Rd[i], Vd[i], RCMPD))
+fd.close()
 
-
-fl = open('LMC' + nameout, 'w')
-fl.write('RShell(kpc), Rdisk, Vdisk, RDpot \n')
+print len(RsL), len(Rlmc), len(Vlmc), len(RCMPL)
+fl = open('LMC'+nameout, 'w')
+fl.write('RShell(kpc), Rlmc, Vlmc, RLMCpot \n')
 for i in range(len(RsL)):
-    fl.write(('%f %f %f %f\n')%(RsL[i], Rlmc[i], Vlmc[i], RCMPL))
-fmw.close()
-
+    fl.write(('%f %f %f %f \n')%(RsL[i], Rlmc[i], Vlmc[i], RCMPL))
+fl.close()
