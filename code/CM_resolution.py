@@ -19,13 +19,13 @@ def CM(x, y, z, vx, vy, vz, delta):
     yCM = sum(y)/len(y)
     zCM = sum(z)/len(z)
 
-    xCM_new = np.zeros(100000)
-    yCM_new = np.zeros(100000)
-    zCM_new = np.zeros(100000)
-    vxCM_new = np.zeros(100000)
-    vyCM_new = np.zeros(100000)
-    vzCM_new = np.zeros(100000)
-
+    xCM_new = np.zeros(10000)
+    yCM_new = np.zeros(10000)
+    zCM_new = np.zeros(10000)
+    vxCM_new = np.zeros(10000)
+    vyCM_new = np.zeros(10000)
+    vzCM_new = np.zeros(10000)
+    Rnow = np.zeros(10000)
     xCM_new[0] = xCM
     yCM_new[0] = yCM
     zCM_new[0] = zCM
@@ -39,16 +39,16 @@ def CM(x, y, z, vx, vy, vz, delta):
     vzCM_new[0] = sum(vz)/N
 
     R1 = np.sqrt((x - xCM_new[0])**2 + (y - yCM_new[0])**2 + (z - zCM_new[0])**2)
-    Rnow = [max(R1)]
-
-    while (np.sqrt((xCM_new[-1]-xCM)**2 + (yCM_new[-1]-yCM)**2 +(zCM_new[-1]-zCM)**2) > delta):
-        xCM = xCM_new[-1]
-        yCM = yCM_new[-1]
-        zCM = zCM_new[-1]
+    Rnow[0] = max(R1)
+    i=0
+    while (np.sqrt((xCM_new[i]-xCM)**2 + (yCM_new[i]-yCM)**2 +(zCM_new[i]-zCM)**2) > delta):
+        xCM = xCM_new[i]
+        yCM = yCM_new[i]
+        zCM = zCM_new[i]
         Rcm = np.sqrt(xCM**2 + yCM**2 + zCM**2)
         R = np.sqrt((x - xCM)**2 + (y - yCM)**2 + (z - zCM)**2)
         Rmax = max(R)
-        index = where(R<Rmax/2.0)
+        index = np.where(R<Rmax/2.0)[0]
         x = x[index]
         y = y[index]
         z = z[index]
@@ -56,15 +56,16 @@ def CM(x, y, z, vx, vy, vz, delta):
         vy = vy[index]
         vz = vz[index]
         N = len(x)
+        i+=1
         xCM_new[i] = (sum(x)/N)
         yCM_new[i] = (sum(y)/N)
         zCM_new[i] = (sum(z)/N)
         vxCM_new[i] = (sum(vx)/N)
         vyCM_new[i] = (sum(vy)/N)
         vzCM_new[i] = (sum(vz)/N)
-        Rnow.append(max(np.sqrt((x - xCM_new[-1])**2 + (y - yCM_new[-1])**2 + (z - zCM_new[-1])**2)))
-
-    return xCM_new, yCM_new, zCM_new, vxCM_new, vyCM_new, vxCM_new, Rnow
+        Rnow[i] = max(np.sqrt((x - xCM_new[i])**2 + (y - yCM_new[i])**2 + (z - zCM_new[i])**2))
+    clean = np.where(xCM_new != 0)[0]
+    return xCM_new[clean], yCM_new[clean], zCM_new[clean], vxCM_new[clean], vyCM_new[clean], vxCM_new[clean], Rnow[clean]
 
 #function that reads the snapshot
 
@@ -131,6 +132,8 @@ Vd = np.sqrt(vXCMD**2 + vYCMD**2 + vZCMD**2)
 RCMPMW = np.sqrt(XCMPMW**2 + YCMPMW**2 + ZCMPMW**2)
 RCMPD = np.sqrt(XCMPd**2 + YCMPd**2 + ZCMPd**2)
 RCMPL = np.sqrt(XCMPL**2 + YCMPL**2 + ZCMPL**2)
+
+print len(XCMMW)
 
 fmw = open('MW'+nameout, 'w')
 fmw.write('RShell(kpc), Rmw, Vmw, Rpot \n')
