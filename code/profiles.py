@@ -196,7 +196,7 @@ def vc_mn(a, b, x, y, z,  M):
     R = np.sqrt(x**2 + y**2)
     M = M * units.Msun
     factor = R**2 + (a + np.sqrt(z**2 + b**2))**2
-    vc = np.sqrt( G * M  * R**2 / factor**(3.0/2.0)) 
+    vc = np.sqrt(G * M * R**2 / factor**(3.0/2.0))
     vc = vc.to(units.km / units.s)
     return vc.value
 
@@ -289,6 +289,18 @@ def mass_NFW(c, x, y, z, M):
     z = z*units.kpc
     Rvir = rvir(M, 0) # here we are working at z=0
     a = Rvir / c
+    M = M * units.Msun
+    r = np.sqrt(x**2 + y**2 + z**2)
+    f = np.log(1.0 + c) - (c / (1.0 + c))
+    mass = M * (np.log(1 + r/a) - r/(a+r)) / f
+    return mass.value
+
+def mass_NFW200(c200, x, y, z, M):
+    x = x*units.kpc
+    y = y*units.kpc
+    z = z*units.kpc
+    R200 = r200(M, 0) # here we are working at z=0
+    a = R200 / c
     M = M * units.Msun
     r = np.sqrt(x**2 + y**2 + z**2)
     f = np.log(1.0 + c) - (c / (1.0 + c))

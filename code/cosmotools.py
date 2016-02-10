@@ -35,6 +35,13 @@ def rvir(Mvir, z):
     Rvir = Rvir.to(units.kpc)
     return Rvir
 
+def r200(M200, z):
+    M200 = M200 * units.Msun
+    pcrit = rho_crit(z)
+    R200 = (3.0*M200 / (4.0 * np.pi * 200.0 * pcrit * Omega0))**(1.0/3.0)
+    R200 = R200.to(units.kpc)
+    return R200
+
 def rvir2(Mvir, z):
     h = 0.704
     rv = 206/h * (Dvir(z) * Omega0 / 97.2)**(-1.0/3.0) * (Mvir*h/(1E12))**(1.0/3.0)
