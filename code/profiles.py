@@ -300,10 +300,10 @@ def mass_NFW200(c200, x, y, z, M):
     y = y*units.kpc
     z = z*units.kpc
     R200 = r200(M, 0) # here we are working at z=0
-    a = R200 / c
+    a = R200 / c200
     M = M * units.Msun
     r = np.sqrt(x**2 + y**2 + z**2)
-    f = np.log(1.0 + c) - (c / (1.0 + c))
+    f = np.log(1.0 + c200) - (c200 / (1.0 + c200))
     mass = M * (np.log(1 + r/a) - r/(a+r)) / f
     return mass.value
 
