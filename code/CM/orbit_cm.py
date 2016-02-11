@@ -3,14 +3,6 @@ from pygadgetreader import *
 import sys
 import argparse
 
-#parser = argparse.ArgumentParser(
-#    description='Computing the CM position and velocity',
-#    epilog='python orbit_cm.py snap_base_name initial_snap_number' \
-#    'final_snap_number')
-
-#output = parser.parse_args()
-
-
 if len(sys.argv) != 8:
     print 'Usage: python orbit_cm.py snap_base_name inital_snap_number'\
            'final_snap_number path2file out?name  #DMhost #DMsat'
@@ -55,56 +47,36 @@ Rgal = np.zeros(N_snaps)
 Vgal = np.zeros(N_snaps)
 time = np.zeros(N_snaps)
 
-# Defining function that computes the CM of the halo: 
-def CM(x, y, z, vx, vy, vz, delta):
+#Function that computes the CM of the halo:
+def CMMW(x, y, z, pot):
+    rcut = np.where(np.sqrt(x**2+y**2+z**2)<50)[0]
+    x, y, z, pot = x[rcut], y[rcut], z[rcut], pot[rcut]
+    cm = np.where(pot == min(pot))[0]
+    x_cm, y_cm, z_cm = x[cm], y[cm], z[cm]
+    return x_cm, y_cm, z_cm
 
-    N = len(x) # Numero de particulas
-    xCM = sum(x)/N
-    yCM = sum(y)/N
-    zCM = sum(z)/N
+def CMLMC(x, y, z, pot, xcmmw, ycmmw, zcmmw):
+    rcut = np.where(np.sqrt((x-xcmmw)**2+(y-ycmmw)**2+(z-zcmmw)**2)<10)[0]
+    x, y, z, pot = x[rcut], y[rcut], z[rcut], pot[rcut]
+    cm = np.where(pot == min(pot))[0]
+    x_cm, y_cm, z_cm = x[cm], y[cm], z[cm]
+    return x_cm, y_cm, z_cm
 
-    xCM_new = xCM
-    yCM_new = yCM
-    zCM_new = zCM
+def VCM(x, y, z, xcm, ycm, zcm, vx, vy, vz):
+    Ntot = len(x)
+    N = Ntot
+    while(N>0.1*Ntot):
+        rshell = np.sqrt((x-xcm)**2 + (y-ycm)**2 + (z-zcm)**2)
+        rcut = rshell / 1.2
+        cut = np.where(rshell<=rcut)[0]
+        x, y, z = x[cut], y[cut], z[cut]
+        vx, vy, vz = vx[cut], vy[cut], vz[cut]
+        N = len(X)
+    vxcm = sum(vx)/N
+    vycm = sum(vy)/N
+    vzcm = sum(vz)/N
+    return vxcm, vycm, vzcm
 
-    vxCM_new = sum(vx)/N
-    vyCM_new = sum(vy)/N
-    vzCM_new = sum(vz)/N
-
-    xCM = 0.0
-    yCM = 0.0
-    zCM = 0.0
-
-    while ((np.sqrt((xCM_new-xCM)**2 + (yCM_new-yCM)**2 \
-          +(zCM_new-zCM)**2) > delta)):
-        xCM = xCM_new
-        yCM = yCM_new
-        zCM = zCM_new
-        Rcm = np.sqrt(xCM**2 + yCM**2 + zCM**2)
-        r = np.sqrt(x**2 + y**2 + z**2)
-        # distance from the CM to all the particles
-        R = np.sqrt((x - xCM)**2 + (y - yCM)**2 + (z - zCM)**2)
-        # Finding the largest distance/velocity from the CM
-        Rmax = max(R)
-        # Selecting particles within half of the maximum radius
-        index = np.where(R<Rmax/2.0)
-        x = x[index]
-        y = y[index]
-        z = z[index]
-        vx = vx[index]
-        vy = vy[index]
-        vz = vz[index]
-        #Computing new CM
-        if len(x)<100:
-            sys.exit('Less than 100 particles')
-        print len(x)
-        xCM_new = sum(x)/len(x)
-        yCM_new = sum(y)/len(y)
-        zCM_new = sum(z)/len(z)
-        vxCM_new = sum(vx)/len(vx)
-        vyCM_new = sum(vy)/len(vy)
-        vzCM_new = sum(vz)/len(vz)
-    return xCM_new, yCM_new, zCM_new, vxCM_new, vyCM_new, vzCM_new
 
 for i in range(i_n, i_f + 1):
     if i<10:
@@ -112,16 +84,19 @@ for i in range(i_n, i_f + 1):
         positions = readsnap(path + snap + "_00" + str(i),'pos', 'dm')
         velocities = readsnap(path + snap + "_00" + str(i), 'vel', 'dm')
         particles_ids = readsnap(path + snap + "_00" + str(i), 'pid', 'dm')
+        potential = readsnap(path + snap + "_00" + str(i), 'pid', 'dm')
     elif ((i>=10) & (i<100)):
         time[i-i_n] = readheader(path + snap + "_0" + str(i),'time')
         positions = readsnap(path + snap + "_0" + str(i),'pos', 'dm')
         velocities = readsnap(path + snap + "_0" + str(i), 'vel', 'dm')
         particles_ids = readsnap(path + snap + "_0" + str(i), 'pid', 'dm')
+        potential = readsnap(path + snap + "_0" + str(i), 'pid', 'dm')
     else:
         time[i-i_n] = readheader(path + snap + "_" + str(i),'time')
         positions = readsnap(path + snap + "_" + str(i),'pos', 'dm')
         velocities = readsnap(path + snap + "_" + str(i), 'vel', 'dm')
         particles_ids = readsnap(path + snap + "_" + str(i), 'pid', 'dm')
+        potential = readsnap(path + snap + "_" + str(i), 'pid', 'dm')
 
     ID = np.sort(particles_ids)
     # The first set of particles are from the host DM halo, the
@@ -130,8 +105,6 @@ for i in range(i_n, i_f + 1):
     idcut = ID[Nhost-1]
     index_mw = np.where(particles_ids<=idcut)
     index_LMC = np.where(particles_ids>idcut)
-    #index_mw = np.where(particles_ids<=X[idcut])
-    #index_LMC = np.where(particles_ids>X[idcut])
 
     x_mw = positions[index_mw[0],0]
     y_mw = positions[index_mw[0],1]
@@ -147,17 +120,18 @@ for i in range(i_n, i_f + 1):
     vy_lmc = velocities[index_LMC[0],1]
     vz_lmc = velocities[index_LMC[0],2]
 
-    X[i-i_n], Y[i-i_n], Z[i-i_n], VX[i-i_n], VY[i-i_n], VZ[i-i_n] = \
-         CM(x_mw, y_mw, z_mw, vx_mw, vy_mw, vz_mw, deltar)
-    Xsat[i-i_n], Ysat[i-i_n], Zsat[i-i_n], VXsat[i-i_n],\
-        VYsat[i-i_n], VZsat[i-i_n]  = CM(x_lmc, y_lmc, \
-        z_lmc, vx_lmc, vy_lmc, vz_lmc, deltar)
-    Rgal[i-i_n] = np.sqrt((X[i-i_n] - Xsat[i-i_n])**2 + \
-        (Y[i-i_n]-Ysat[i-i_n])**2 + (Z[i-i_n] - Zsat[i-i_n])**2)
-    Vgal[i-i_n] = np.sqrt((VX[i-i_n] - VXsat[i-i_n])**2 + \
-        (VY[i-i_n]-VYsat[i-i_n])**2 + (VZ[i-i_n] - VZsat[i-i_n])**2)
+    potmw = potential[index_mw]
+    potlmc = potential[index_LMC]
 
+    X[i-i_n], Y[i-i_n], Z[i-i_n] =  CMMW(x_mw, y_mw, z_mw, potmw)
+    Xsat[i-i_n], Ysat[i-i_n], Zsat[i-i_n] = CMLMC(x_lmc, y_lmc, z_lmc, potlmc, X[i-i_n], Y[i-i_n], Z[i-i_n])
+    VX[i-i_n], VY[i-i_n], VZ[i-i_n] = VCM(x_mw, y_mw, z_mw, X, Y, Z, vx_mw, vy_mw, vz_mw)
+    VXsat[i-i_n], VYsat[i-i_n], VZsat[i-i_n] = VCM(x_lmc, y_lmc, z_lmc, Xsat, Ysat, Zsat, vx_lmc, vy_lmc, vz_lmc)
 
+    Rgal[i-i_n] = np.sqrt((X[i-i_n] - Xsat[i-i_n])**2 + (Y[i-i_n]-Ysat[i-i_n])**2 + (Z[i-i_n] - Zsat[i-i_n])**2)
+    Vgal[i-i_n] = np.sqrt((VX[i-i_n] - VXsat[i-i_n])**2 + (VY[i-i_n]-VYsat[i-i_n])**2 + (VZ[i-i_n] - VZsat[i-i_n])**2)
+    print Rgal, Vgal, X, Y, Z, Xsat, Ysat, Zsat, VX, VY, VZ, VXsat, VYsat, VZsat
+"""
 f = open(out_name, 'w')
 f.write("#Time(Gyrs) | Rgal(kpc) | Xsat[kpc] | Ysat[kpc] | Zsat[kpc] |Xhost[kpc] | Yhost[kpc] Zhost[kpc] |"\
         "Vgal | Vxsat | Vysat | Vzsat | Vxhost | Vyhost | Vzhost |\n")
@@ -166,3 +140,4 @@ for i in range(0, len(Rgal)):
     f.write("%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n"%(time[i], Rgal[i], Xsat[i], Ysat[i],\
     Zsat[i], X[i], Y[i], Z[i], Vgal[i], VXsat[i], VYsat[i], VZsat[i], VX[i], VY[i], VZ[i]))
 f.close()
+"""
