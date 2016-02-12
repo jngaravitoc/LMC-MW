@@ -75,7 +75,6 @@ def VCM(x, y, z, xcm, ycm, zcm, vx, vy, vz):
         x, y, z = x[cut], y[cut], z[cut]
         vx, vy, vz = vx[cut], vy[cut], vz[cut]
         N = len(x)
-        print N
     vxcm = sum(vx)/N
     vycm = sum(vy)/N
     vzcm = sum(vz)/N
@@ -129,13 +128,13 @@ for i in range(i_n, i_f + 1):
 
     X[i-i_n], Y[i-i_n], Z[i-i_n] =  CMMW(x_mw, y_mw, z_mw, potmw)
     Xsat[i-i_n], Ysat[i-i_n], Zsat[i-i_n] = CMLMC(x_lmc, y_lmc, z_lmc, potlmc, X[i-i_n], Y[i-i_n], Z[i-i_n])
-    VX[i-i_n], VY[i-i_n], VZ[i-i_n] = VCM(x_mw, y_mw, z_mw, X, Y, Z, vx_mw, vy_mw, vz_mw)
-    VXsat[i-i_n], VYsat[i-i_n], VZsat[i-i_n] = VCM(x_lmc, y_lmc, z_lmc, Xsat, Ysat, Zsat, vx_lmc, vy_lmc, vz_lmc)
+    VX[i-i_n], VY[i-i_n], VZ[i-i_n] = VCM(x_mw, y_mw, z_mw, X[i-i_n], Y[i-i_n], Z[i-i_n], vx_mw, vy_mw, vz_mw)
+    VXsat[i-i_n], VYsat[i-i_n], VZsat[i-i_n] = VCM(x_lmc, y_lmc, z_lmc, Xsat[i-i_n], Ysat[i-i_n], Zsat[i-i_n], vx_lmc, vy_lmc, vz_lmc)
 
     Rgal[i-i_n] = np.sqrt((X[i-i_n] - Xsat[i-i_n])**2 + (Y[i-i_n]-Ysat[i-i_n])**2 + (Z[i-i_n] - Zsat[i-i_n])**2)
     Vgal[i-i_n] = np.sqrt((VX[i-i_n] - VXsat[i-i_n])**2 + (VY[i-i_n]-VYsat[i-i_n])**2 + (VZ[i-i_n] - VZsat[i-i_n])**2)
-    print Rgal, Vgal, X, Y, Z, Xsat, Ysat, Zsat, VX, VY, VZ, VXsat, VYsat, VZsat
-"""
+    #print Rgal, Vgal, X, Y, Z, Xsat, Ysat, Zsat, VX, VY, VZ, VXsat, VYsat, VZsat
+
 f = open(out_name, 'w')
 f.write("#Time(Gyrs) | Rgal(kpc) | Xsat[kpc] | Ysat[kpc] | Zsat[kpc] |Xhost[kpc] | Yhost[kpc] Zhost[kpc] |"\
         "Vgal | Vxsat | Vysat | Vzsat | Vxhost | Vyhost | Vzhost |\n")
@@ -144,4 +143,3 @@ for i in range(0, len(Rgal)):
     f.write("%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n"%(time[i], Rgal[i], Xsat[i], Ysat[i],\
     Zsat[i], X[i], Y[i], Z[i], Vgal[i], VXsat[i], VYsat[i], VZsat[i], VX[i], VY[i], VZ[i]))
 f.close()
-"""
