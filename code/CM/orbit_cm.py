@@ -49,14 +49,17 @@ time = np.zeros(N_snaps)
 
 #Function that computes the CM of the halo:
 def CMMW(x, y, z, pot):
-    rcut = np.where(np.sqrt(x**2+y**2+z**2)<50)[0]
+    rcut = np.where(np.sqrt(x**2+y**2+z**2)<50.0)[0]
     x, y, z, pot = x[rcut], y[rcut], z[rcut], pot[rcut]
     cm = np.where(pot == min(pot))[0]
     x_cm, y_cm, z_cm = x[cm], y[cm], z[cm]
     return x_cm, y_cm, z_cm
 
 def CMLMC(x, y, z, pot, xcmmw, ycmmw, zcmmw):
-    rcut = np.where(np.sqrt((x-xcmmw)**2+(y-ycmmw)**2+(z-zcmmw)**2)<10)[0]
+    xcm = sum(x)/len(x)
+    ycm = sum(y)/len(y)
+    zcm = sum(z)/len(z)
+    rcut = np.where(np.sqrt((x-xcm)**2+(y-ycm)**2+(z-zcm)**2)<50.0)[0]
     x, y, z, pot = x[rcut], y[rcut], z[rcut], pot[rcut]
     cm = np.where(pot == min(pot))[0]
     x_cm, y_cm, z_cm = x[cm], y[cm], z[cm]
@@ -67,11 +70,12 @@ def VCM(x, y, z, xcm, ycm, zcm, vx, vy, vz):
     N = Ntot
     while(N>0.1*Ntot):
         rshell = np.sqrt((x-xcm)**2 + (y-ycm)**2 + (z-zcm)**2)
-        rcut = rshell / 1.2
+        rcut = max(rshell) / 1.1
         cut = np.where(rshell<=rcut)[0]
         x, y, z = x[cut], y[cut], z[cut]
         vx, vy, vz = vx[cut], vy[cut], vz[cut]
-        N = len(X)
+        N = len(x)
+        print N
     vxcm = sum(vx)/N
     vycm = sum(vy)/N
     vzcm = sum(vz)/N
