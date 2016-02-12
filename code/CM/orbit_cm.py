@@ -49,7 +49,7 @@ time = np.zeros(N_snaps)
 
 #Function that computes the CM of the halo:
 def CMMW(x, y, z, pot):
-    rcut = np.where(np.sqrt(x**2+y**2+z**2)<50.0)[0]
+    rcut = np.where(np.sqrt(x**2+y**2+z**2)<30.0)[0]
     x, y, z, pot = x[rcut], y[rcut], z[rcut], pot[rcut]
     cm = np.where(pot == min(pot))[0]
     x_cm, y_cm, z_cm = x[cm], y[cm], z[cm]
@@ -59,7 +59,7 @@ def CMLMC(x, y, z, pot, xcmmw, ycmmw, zcmmw):
     xcm = sum(x)/len(x)
     ycm = sum(y)/len(y)
     zcm = sum(z)/len(z)
-    rcut = np.where(np.sqrt((x-xcm)**2+(y-ycm)**2+(z-zcm)**2)<50.0)[0]
+    rcut = np.where(np.sqrt((x-xcm)**2+(y-ycm)**2+(z-zcm)**2)<20.0)[0]
     x, y, z, pot = x[rcut], y[rcut], z[rcut], pot[rcut]
     cm = np.where(pot == min(pot))[0]
     x_cm, y_cm, z_cm = x[cm], y[cm], z[cm]
