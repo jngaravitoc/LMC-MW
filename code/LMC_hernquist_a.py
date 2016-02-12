@@ -1,4 +1,17 @@
-import numpy as np 
+"""
+This code find the scale length 'a'
+of the Hernquist profile in order to
+match the a desired enclosed mass M_ideal.
+
+Input:
+     M: total mass
+     M_ideal: Desired enclosed mass
+
+Output:
+     a: Hernquist scale length.
+"""
+
+import numpy as np
 from profiles import mass_hernquist as mh
 import sys
 
@@ -6,15 +19,14 @@ M = float(sys.argv[1])
 M_ideal = float(sys.argv[2])
 
 def a_value(M):
-    a_values = np.linspace(3, 30, 1000)
+    a_values = np.linspace(3, 40, 2000)
     best_a = []
 
     for i in a_values:
         Mass_enclosed = mh(i, 9, M)
-        Mass_enclosed = Mass_enclosed.value
+        Mass_enclosed = Mass_enclosed
         if (abs(Mass_enclosed-M_ideal) < 5E8):
             best_a = i
-         
     return best_a
 
 print a_value(M)
