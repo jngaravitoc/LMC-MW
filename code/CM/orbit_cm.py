@@ -15,15 +15,18 @@ snap = str(sys.argv[1])
 # Initial and final snapshot number
 i_n = int(sys.argv[2])
 i_f = int(sys.argv[3])
+#Output Name
 out_name = str(sys.argv[5])
+#Number of particles of the host
 Nhost = int(sys.argv[6])
+#Number of particles of the sat
 Nsat = int(sys.argv[7])
-path = str(sys.argv[4])#'../../data/LMCMW/MW1LMC4/a1/'
+path = str(sys.argv[4]) #'../../data/LMCMW/MW1LMC4/a1/'
 
 # Number of Snapshots
 N_snaps = (i_f - i_n) + 1
 
-D = 0.6 # precision of the CM computation in Kpc.
+D = 0.05 # precision of the CM computation in Kpc.
 
 #Position and velocity arrays for the host and the satellite
 X = np.zeros(N_snaps)
@@ -103,7 +106,32 @@ def CM(x, y, z, vx, vy, vz, delta):
     #clean = np.where(Rnow != 0)[0]
     return xCM_new, yCM_new, zCM_new, vxCM_new, vyCM_new, vzCM_new
 
-#Function that computes the CM of the halo:
+# function that computes the CM using the 10% most bound particles!
+# I am using the potential method any more, its not useful to find the 
+#LMC CM because the particles feel the potential of the MW.
+"""
+def potential_CM(potential, x, y, z, vx, vy, vz):
+    index = np.where(potential< min(potential)*0.90)[0]
+    x_p = x[index]
+    y_p = y[index]
+    z_p = z[index]
+    vx_p = vx[index]
+    vy_p = vy[index]
+    vz_p = vz[index]
+    N = len(x_p)
+    x_cm = sum(x_p)/N
+    y_cm = sum(y_p)/N
+    z_cm = sum(z_p)/N
+    vx_cm = sum(vx_p)/N
+    vy_cm = sum(vy_p)/N
+    vz_cm = sum(vz_p)/N
+    Rcm = np.sqrt(x_cm**2.0 + y_cm**2.0 + z_cm**2.0)
+    Vcm = np.sqrt(vx_cm**2.0 + vy_cm**2.0 + vz_cm**2.0)
+    return x_cm, y_cm, z_cm, vx_cm, vy_cm, vz_cm, Rcm, Vcm
+
+
+#Function that computes the CM of the halo using the minimum of the
+#potential:
 def CMMW(x, y, z, pot):
     rcut = np.where(np.sqrt(x**2+y**2+z**2)<30.0)[0]
     x, y, z, pot = x[rcut], y[rcut], z[rcut], pot[rcut]
@@ -135,7 +163,7 @@ def VCM(x, y, z, xcm, ycm, zcm, vx, vy, vz):
     vycm = sum(vy)/N
     vzcm = sum(vz)/N
     return vxcm, vycm, vzcm
-
+"""
 
 for i in range(i_n, i_f + 1):
     if i<10:
@@ -187,13 +215,8 @@ for i in range(i_n, i_f + 1):
     Rgal[i-i_n] = np.sqrt((X[i-i_n] - Xsat[i-i_n])**2 +
 (Y[i-i_n]-Ysat[i-i_n])**2 +(Z[i-i_n] - Zsat[i-i_n])**2)
     Vgal[i-i_n] = np.sqrt((VX[i-i_n] - VXsat[i-i_n])**2 + (VY[i-i_n]-VYsat[i-i_n])**2 + (VZ[i-i_n] - VZsat[i-i_n])**2)
-    #print X[i-i_n]
-    #X[i-i_n], Y[i-i_n], Z[i-i_n] =  CMMW(x_mw, y_mw, z_mw, potmw)
-    #Xsat[i-i_n], Ysat[i-i_n], Zsat[i-i_n] = CMLMC(x_lmc, y_lmc, z_lmc, potlmc, X[i-i_n], Y[i-i_n], Z[i-i_n])
-    #VX[i-i_n], VY[i-i_n], VZ[i-i_n] = VCM(x_mw, y_mw, z_mw, X[i-i_n], Y[i-i_n], Z[i-i_n], vx_mw, vy_mw, vz_mw)
-    
 
-print 'writting the data'
+print 'Writing the data'
 f = open(out_name, 'w')
 f.write("#Time(Gyrs) | Rgal(kpc) | Xsat[kpc] | Ysat[kpc] | Zsat[kpc] |Xhost[kpc] | Yhost[kpc] Zhost[kpc] |"\
         "Vgal | Vxsat | Vysat | Vzsat | Vxhost | Vyhost | Vzhost |\n")
