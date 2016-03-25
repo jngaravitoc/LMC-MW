@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import numpy as np
 from pygadgetreader import *
 import sys
@@ -27,7 +30,7 @@ path = str(sys.argv[4]) #'../../data/LMCMW/MW1LMC4/a1/'
 N_snaps = (i_f - i_n) + 1
 
 D = 0.05 # precision of the CM computation in Kpc.
-
+V_radius = 2.0 # Radius of disk particles to compute the CM
 #Position and velocity arrays for the host and the satellite
 X = np.zeros(N_snaps)
 Y = np.zeros(N_snaps)
@@ -50,20 +53,31 @@ Rgal = np.zeros(N_snaps)
 Vgal = np.zeros(N_snaps)
 time = np.zeros(N_snaps)
 
+#Function that computed the MW CM using the disk potential
 
+def CM_disk_potential(x, y, z, vx, vy, vz, Pdisk):
+    min_pot = np.where(Pdisk==min(Pdisk))[0]
+    x_min = x[min_pot]
+    y_min = y[min_pot]
+    z_min = z[min_pot]
+    # This >2.0 corresponds to the radius in kpc of the particles that
+    # I am taking into account to compute the CM
+    avg_particles = np.where(np.sqrt((x-x_min)**2.0 + (y-y_min)**2.0 +
+(z-z_min)**2.0)<V_radius)[0]
+    x_cm = sum(x[avg_particles])/len(avg_particles)
+    y_cm = sum(y[avg_particles])/len(avg_particles)
+    z_cm = sum(z[avg_particles])/len(avg_particles)
+    vx_cm = sum(vx[avg_particles])/len(avg_particles)
+    vy_cm = sum(vy[avg_particles])/len(avg_particles)
+    vz_cm = sum(vz[avg_particles])/len(avg_particles)
+    return x_cm, y_cm, z_cm, vx_cm, vy_cm, vz_cm
+
+# Function that computes the CM iterativly
 def CM(x, y, z, vx, vy, vz, delta):
     N = len(x)
     xCM = sum(x)/N
     yCM = sum(y)/N
     zCM = sum(z)/N
-
-    #xCM_new = np.zeros(300)
-    #yCM_new = np.zeros(300)
-    #zCM_new = np.zeros(300)
-    #vxCM_new = np.zeros(300)
-    #vyCM_new = np.zeros(300)
-    #vzCM_new = np.zeros(300)
-    #Rnow = np.zeros(300)
 
     xCM_new = xCM
     yCM_new = yCM
@@ -78,7 +92,6 @@ def CM(x, y, z, vx, vy, vz, delta):
     vzCM_new = sum(vz)/N
 
     R1 = np.sqrt((x - xCM_new)**2 + (y - yCM_new)**2 + (z - zCM_new)**2)
-    #Rnow[0] = max(R1)
     i=0
     while (np.sqrt((xCM_new-xCM)**2 + (yCM_new-yCM)**2 +(zCM_new-zCM)**2) > delta):
         xCM = xCM_new
@@ -96,12 +109,12 @@ def CM(x, y, z, vx, vy, vz, delta):
         vz = vz[index]
         N = len(x)
         i+=1
-        xCM_new = (sum(x)/N)
-        yCM_new = (sum(y)/N)
-        zCM_new = (sum(z)/N)
-        vxCM_new = (sum(vx)/N)
-        vyCM_new = (sum(vy)/N)
-        vzCM_new = (sum(vz)/N)
+        xCM_new = sum(x)/N
+        yCM_new = sum(y)/N
+        zCM_new = sum(z)/N
+        vxCM_new = sum(vx)/N
+        vyCM_new = sum(vy)/N
+        vzCM_new = sum(vz)/N
         #Rnow[i] = max(np.sqrt((x - xCM_new[i])**2 + (y - yCM_new[i])**2 + (z - zCM_new[i])**2))
     #clean = np.where(Rnow != 0)[0]
     return xCM_new, yCM_new, zCM_new, vxCM_new, vyCM_new, vzCM_new
@@ -166,54 +179,49 @@ def VCM(x, y, z, xcm, ycm, zcm, vx, vy, vz):
 """
 
 for i in range(i_n, i_f + 1):
-    if i<10:
-        time[i-i_n] = readheader(path + snap + "_00" + str(i),'time')
-        positions = readsnap(path + snap + "_00" + str(i),'pos', 'dm')
-        velocities = readsnap(path + snap + "_00" + str(i), 'vel', 'dm')
-        particles_ids = readsnap(path + snap + "_00" + str(i), 'pid', 'dm')
-        potential = readsnap(path + snap + "_00" + str(i), 'pid', 'dm')
-    elif ((i>=10) & (i<100)):
-        time[i-i_n] = readheader(path + snap + "_0" + str(i),'time')
-        positions = readsnap(path + snap + "_0" + str(i),'pos', 'dm')
-        velocities = readsnap(path + snap + "_0" + str(i), 'vel', 'dm')
-        particles_ids = readsnap(path + snap + "_0" + str(i), 'pid', 'dm')
-        potential = readsnap(path + snap + "_0" + str(i), 'pid', 'dm')
-    else:
-        time[i-i_n] = readheader(path + snap + "_" + str(i),'time')
-        positions = readsnap(path + snap + "_" + str(i),'pos', 'dm')
-        velocities = readsnap(path + snap + "_" + str(i), 'vel', 'dm')
-        particles_ids = readsnap(path + snap + "_" + str(i), 'pid', 'dm')
-        potential = readsnap(path + snap + "_" + str(i), 'pid', 'dm')
+    print 'snapshot' + str(i)
+    time[i-i_n] = readheader(path + snap + "_{:0>3d}".format(i),'time')
+    positions = readsnap(path + snap + "_{:0>3d}".format(i),'pos', 'dm')
+    velocities = readsnap(path + snap + "_{:0>3d}".format(i), 'vel', 'dm')
+    particles_ids = readsnap(path + snap + "_{:0>3d}".format(i), 'pid', 'dm')
+    potential = readsnap(path + snap + "_{:0>3d}".format(i), 'pot','disk')
+    positions_d = readsnap(path + snap + "_{:0>3d}".format(i),'pos','disk')
+    v_d = readsnap(path + snap + "_{:0>3d}".format(i),'vel','disk')
 
     ID = np.sort(particles_ids)
     # The first set of particles are from the host DM halo, the
     # second set are from the satellite DM halo, the limit is know by
     # the number of particles in the host halo.
     idcut = ID[Nhost-1]
-    index_mw = np.where(particles_ids<=idcut)
+    #index_mw = np.where(particles_ids<=idcut)
     index_LMC = np.where(particles_ids>idcut)
 
-    x_mw = positions[index_mw[0],0]
-    y_mw = positions[index_mw[0],1]
-    z_mw = positions[index_mw[0],2]
+    x_mw = positions_d[:,0]
+    y_mw = positions_d[:,1]
+    z_mw = positions_d[:,2]
+    #x_mw = positions[index_mw[0],0]
+    #y_mw = positions[index_mw[0],1]
+    #z_mw = positions[index_mw[0],2]
     x_lmc = positions[index_LMC[0],0]
     y_lmc = positions[index_LMC[0],1]
     z_lmc = positions[index_LMC[0],2]
 
-    vx_mw = velocities[index_mw[0],0]
-    vy_mw = velocities[index_mw[0],1]
-    vz_mw = velocities[index_mw[0],2]
+    vx_mw = v_d[:,0]
+    vy_mw = v_d[:,1]
+    vz_mw = v_d[:,2]
+    #vx_mw = velocities[index_mw[0],0]
+    #vy_mw = velocities[index_mw[0],1]
+    #vz_mw = velocities[index_mw[0],2]
     vx_lmc = velocities[index_LMC[0],0]
     vy_lmc = velocities[index_LMC[0],1]
     vz_lmc = velocities[index_LMC[0],2]
 
-    potmw = potential[index_mw]
-    potlmc = potential[index_LMC]
+    #potmw = potential[index_mw]
+    #potlmc = potential[index_LMC]
 
-    X[i-i_n], Y[i-i_n], Z[i-i_n], VX[i-i_n], VY[i-i_n], VZ[i-i_n] = CM(x_mw, y_mw, z_mw, vx_mw, vy_mw, vz_mw, D)
+    X[i-i_n], Y[i-i_n], Z[i-i_n], VX[i-i_n], VY[i-i_n], VZ[i-i_n] = CM_disk_potential(x_mw, y_mw, z_mw, vx_mw, vy_mw, vz_mw, potential)
     Xsat[i-i_n], Ysat[i-i_n], Zsat[i-i_n], VXsat[i-i_n], VYsat[i-i_n], VZsat[i-i_n]= CM(x_lmc, y_lmc, z_lmc, vx_lmc, vy_lmc, vz_lmc, D)
-    Rgal[i-i_n] = np.sqrt((X[i-i_n] - Xsat[i-i_n])**2 +
-(Y[i-i_n]-Ysat[i-i_n])**2 +(Z[i-i_n] - Zsat[i-i_n])**2)
+    Rgal[i-i_n] = np.sqrt((X[i-i_n] - Xsat[i-i_n])**2 + (Y[i-i_n]-Ysat[i-i_n])**2 +(Z[i-i_n] - Zsat[i-i_n])**2)
     Vgal[i-i_n] = np.sqrt((VX[i-i_n] - VXsat[i-i_n])**2 + (VY[i-i_n]-VYsat[i-i_n])**2 + (VZ[i-i_n] - VZsat[i-i_n])**2)
 
 print 'Writing the data'
