@@ -19,8 +19,8 @@ from scipy import linalg
 def smooth_b(a):
     # Eq 8, Weinberg 96
     b = np.zeros(len(a))
-    for i in range(len(a)):
-        b[i] = 1.0/(1.0 + np.var(a[:i+1])/a[i]**2)
+    for i in range(1,len(a)):
+        b[i] = 1.0/(1.0 + np.var(a)/a[i-1]**2)
     return b
 
 def MISE(a):
@@ -40,7 +40,7 @@ def MISE(a):
     b = smooth_b(a)
     # This for is over all the coefficients
     for i in range(len(a)):
-        D[i] = np.sum(b[:i+1]**2.0 * np.var(a[:i+1]) + (b[:i+1]-1.0)**2.0*a[:i+1]**2.0)
+        D[i] = np.sum(b[:i+1]**2.0 * np.var(a) + (b[:i+1]-1.0)**2.0*a[:i+1]**2.0)
     return D
 
 
@@ -55,7 +55,6 @@ def S_matrix(a):
 
 def lambda_prime(lambdas):
     F = np.zeros(len(lambdas))
-    print len(F)
     for i in range(len(F)):
         F[i] = np.sum(lambdas.real[:i])/np.sum(lambdas.real)
     return F
