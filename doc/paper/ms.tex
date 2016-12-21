@@ -60,23 +60,26 @@
 % Keep the title short and informative.
 \title[The Milky Way Dark Matter halo response to the Large Magellanic
 Cloud]{The Milky Way's Dark Matter halo response to the Large Magellanic
-cloud: Shape of the halo, time evolution and kinematics}
+cloud: Shape of the halo, time evolution and kinematics.}
 
 % The list of authors, and the short list which is used in the headers.
 % If you need two or more lines of authors, add an extra line using \newauthor
 \author[N. Garavito-Camargo et al.]{
-Nicolas Garavito-Camargo,$^{1}$\thanks{E-mail:
+Nicol\'as Garavito-Camargo $^{1}$,\thanks{E-mail:
 jngaravitoc@email.arizona.edu}
-Gurtina Besla,$^{1}$
-KVJ, CL,$^{2}$
-FG,$^{3}$
-AP-W.$^{4}$
+Gurtina Besla $^{1}$,
+Kathryn V. Johnston $^{2}$,
+Chervin Laporte $^{2}$,
+Facundo A. G\'omez $^{3}$,
+AP-W.
 \\
 % List of institutions
 $^{1}$Steward Observatory, University of Arizona, 933 North Cherry
 Avenue, Tucson, AZ 85721, USA.\\
-%$^{2}$Department, Institution, Street Address, City Postal Code, Country\\
-%$^{3}$Another Department, Different Institution, Street Address, City Postal Code, Country
+$^{2}$Department of Astronomy, Columbia UNiversity, New York, NY
+10027, USA.\\
+$^{3}$Max-Planck-Institut fur Astrophysik, Karl-Scharzchild-Str. 1,
+D-85748 Garching, Germany.
 }
 
 % These dates will be filled out by the publisher
@@ -114,17 +117,112 @@ keyword1 -- keyword2 -- keyword3
 
 \section{Numerical Methods:}
 
-In this section the numerical methods used in this work are presented.
+In order to study the response of the MW dark matter halo, we made the
+following procedure; We run n-body simulations of the MW-LMC
+system, this simulations reproduce the orbit of the LMC in a first
+infall scenario following \verb+\citep{Besla07, etc..}+. We present 18
+simulations corresponding to 3 different MW masses and 6 LMCs with
+different masses. We then proceed to capture analytically the shape
+and time evolution of the Dark Matter halo of the MW, for this aim we 
+apply a basis function expansion at each snapshot of the simulation
+and compute the amplitude of each multipole in an analogous
+procedure as the one made in \verb+\citep{Lowing11}+. Once we have an
+analytical description we proceed to compute orbits of test particles
+at different galactocentric radius.
+
 
 \subsection{MW and LMC models:}
 
-\verb+GALIC+.
+We run tree different models for the MW with different masses. The
+parameters of these models are listed in table \ref{tab:MWmodels}. 
+The halo of the MW is represented by a Hernquist profile that enclosed
+the same mass at the virial radius than a NFW profile for details of
+this procedure see appendix of \verb+\citep{VdM12}+. The disk of the
+MW is represented by an exponential disk whose scale high and scale
+length are listed in table \ref{tab:MWmodels}. The Bulge of the MW is
+modeled using a Hernquist profile. The corresponding rotation curves
+of these models are shown in figure \ref{fig:MWmodels}.
+
+\begin{table}
+\begin{tabular}{c c c c c c c c c}
+\hline
+\hline
+$M_{vir}$ & $R_{vir}$ & $c$ & $a$ & $M_{disk}$ & $r_a$ & $r_b$ & $M_{bulge}$
+& $a_{bulge}$\\
+\hline
+1.2 & 279 & 15 & 40.85 & 5.78  & 2.9 & 0.638 & 1.4 & 0.7\\
+ & & & & & & & & \\
+ & & & & & & & & \\
+\hline
+\end{tabular}
+\caption{\label{tab:MWmodels}}
+\end{table}
+
+The mass of the LMC is not well constrained, and it strongly depends
+in where.
+
+\begin{figure*}
+ \centering
+ \includegraphics[width=6.2in]{../../code/MW_models.pdf}
+ \caption{ MW models}
+ \label{fig:MWmodels}
+\end{figure*}
+
+
+\begin{table}
+\begin{tabular}{c c c c c c c}
+\hline
+\hline
+$M_{vir} [\times 10^{10}] M_{\odot}$ & $3$ & $5$ & $ 8$& $10$ & $18$ &
+$25$ \\
+$r_{s} [Kpc]$ & 3 & 6.4& 10.4& 12.7& 20 & 25.2\\
+\hline
+\hline
+\end{tabular}
+\caption{\label{tab:LMCmodels}}
+\end{table}
+
+\begin{figure*}
+ \centering
+ \includegraphics[width=6.2in]{../../code/LMC_models.pdf}
+ \caption{ LMC models}
+ \label{fig:LMCmodels}
+\end{figure*}
+
+We use the public available code \verb+GALIC+ \citep{Yurin14} in order
+to initialize our MW and LMC models. 
 
 \subsection{Milky Way and LMC N-body simulation}
 
 \verb+GADGET-3+ \citep{Springel05}
+softening length was computed following \citep{Power03} analysis.
 
 
+The center of mass of the MW and the LMC where computes using a
+shrinking sphere algorithm described in \citep{Power03}.
+
+
+In order to find the initial conditions for the N-body simulations
+we integrate the orbit of the LMC backwards in time from the observed
+position and velocity derived from HST measurements by
+\verb+\citep{Katyi}+. We use the dynamical friction term derived by 
+Chandrasekhar equation \citep{Chandrasekhar44} where we take the
+Coulomb Logarithm following \verb+\citep{Hashimoto03}+: 
+
+\begin{equation}
+Ln(\Lambda) = \alpha \left( \dfrac{b_{max}}{b_{min}} \right)
+\end{equation}
+
+Where $b_{max} = r$ is the galactocentric position of the LMC,
+$b_{min}=1.4 * 3 kpc$ and $\alpha$ is a free parameter that 
+softens the acceleration due to dynamical friction. We start with 
+$\alpha=1$ and integrate the LMC up to the virial radius of the MW. 
+Then we run a n-body simulation using these initial conditions, 
+we iterate with lower values of $\alpha$ until we find a good agreement 
+$2 \sigma$ (\textbf{change this value to the actual values}) with the
+ observed positions and velocities of the LMC. These is done for all 
+of our models, the orbits of the LMC are shown in figure $XX$ 
+\textbf{Add figure with the orbits of the LMC}.
 
 \subsection{SCF implementation}
 \citep{Hernquist92}, \citep{Weinberg95}
