@@ -11,7 +11,7 @@ Output:
      a: Hernquist scale length.
 """
 import numpy as np
-from octopus import profiles as pfls
+from soda import profiles as pfls
 import sys
 
 #M = float(sys.argv[1])

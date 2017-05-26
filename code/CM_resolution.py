@@ -69,8 +69,27 @@ def CM(x, y, z, vx, vy, vz, delta):
     clean = np.where(Rnow != 0)[0]
     return xCM_new[clean], yCM_new[clean], zCM_new[clean], vxCM_new[clean], vyCM_new[clean], vzCM_new[clean], Rnow[clean]
 
-#function that reads the snapshot
+def potential_CM(potential, x, y, z, vx, vy, vz):
+    index = np.where(potential< min(potential)*0.90)[0]
+    x_p = x[index]
+    y_p = y[index]
+    z_p = z[index]
+    vx_p = vx[index]
+    vy_p = vy[index]
+    vz_p = vz[index]
+    N = len(x_p)
+    print N
+    x_cm = sum(x_p)/N
+    y_cm = sum(y_p)/N
+    z_cm = sum(z_p)/N
+    vx_cm = sum(vx_p)/N
+    vy_cm = sum(vy_p)/N
+    vz_cm = sum(vz_p)/N
+    Rcm = np.sqrt(x_cm**2.0 + y_cm**2.0 + z_cm**2.0)
+    Vcm = np.sqrt(vx_cm**2.0 + vy_cm**2.0 + vz_cm**2.0)
+    return x_cm, y_cm, z_cm, vx_cm, vy_cm, vz_cm, Rcm, Vcm
 
+#function that reads the snapshot
 def loading_data(filename):
     pothalos = readsnap(filename, 'pot', 'dm')
     poshalos = readsnap(filename, 'pos', 'dm')
@@ -129,9 +148,9 @@ XCMD, YCMD, ZCMD, vXCMD, vYCMD, vZCMD, RsD = CM(Xd, Yd, Zd, Vxd, Vyd, Vzd, delta
 XCML, YCML, ZCML, vXCML, vYCML, vZCML, RsL = CM(XL, YL, ZL, VxL, VyL, VzL, deltar)
 
 # Computing CM with the potential
-XCMPMW, YCMPMW, ZCMPMW = potentialCM(PMW, XMW, YMW, ZMW)
-XCMPd, YCMPd, ZCMPd = potentialCM(Pd, Xd, Yd, Zd)
-XCMPL, YCMPL, ZCMPL = potentialLCM(PL, XL, YL, ZL, XCML[-1], YCML[-1], ZCML[-1])
+XCMPMW, YCMPMW, ZCMPMW = potentialCM(PMW, XMW, YMW, ZMW, VxMW, VyMW, VzMW)
+#XCMPd, YCMPd, ZCMPd = potentialCM(Pd, Xd, Yd, Zd)
+XCMPL, YCMPL, ZCMPL = potentialCM(PL, XL, YL, ZL, XCML[-1], YCML[-1], ZCML[-1])
 
 # Computing galactocentric radius
 Rmw = np.sqrt(XCMMW**2 + YCMMW**2 + ZCMMW**2)
