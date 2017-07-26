@@ -25,7 +25,7 @@ pos_cm, vel_cm = octopus.CM(disk_pos, disk_vel)
 print('COM:' , pos_cm, vel_cm)
 
 # Truncating disk particles
-r = ((disk_pos[:,0] - pos_cm[0])**2 + (disk_pos[:,1]-pos_cm[1])**2 + (disk_pos[:,2]-pos_cm[2])**2)**0.5
+r = ((disk_pos[:,0] - disk_cm[0])**2 + (halo_disk[:,1]-pos_cm[1])**2 + (disk_pos[:,2]-pos_cm[2])**2)**0.5
 
 index_cut = np.where(r<25)[0]
 
@@ -70,7 +70,7 @@ particle_count_per_cell = ad["deposit", "all_count"]
 
 #p = yt.ParticlePlot(ds, 'particle_position_x', 'particle_position_y', 'particle_mass')
 
-p = yt.ParticleProjectionPlot(ds, 2, ['particle_mass'], depth=(0.1))
+p = yt.ParticleProjectionPlot(ds, 2, ['particle_mass'], depth=(5, 'kpc'))
 #slc = yt.SlicePlot(ds, 2, ('deposit', 'all_cic'))
 #slc.set_axes_unit('kpc')
 #slc.set_unit('particle_mass', 'Msun')
